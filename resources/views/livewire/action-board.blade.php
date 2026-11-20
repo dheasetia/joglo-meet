@@ -1,9 +1,11 @@
 <div class="space-y-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-bold text-slate-900">Papan Rencana Tindak Lanjut</h1>
-        <div class="inline-flex rounded-xl border border-slate-200 bg-white p-1 text-sm font-semibold">
-            <button wire:click="$set('view', 'tabel')" @class(['rounded-lg px-3 py-1.5', 'bg-brand-600 text-white' => $view === 'tabel', 'text-slate-500' => $view !== 'tabel'])>Tabel</button>
-            <button wire:click="$set('view', 'kanban')" @class(['rounded-lg px-3 py-1.5', 'bg-brand-600 text-white' => $view === 'kanban', 'text-slate-500' => $view !== 'kanban'])>Kanban</button>
+        <div class="inline-flex gap-1.5" role="group" aria-label="Tampilan">
+            <x-btn variant="secondary" icon="table-cells" wire:click="$set('view', 'tabel')" :aria-pressed="$view === 'tabel' ? 'true' : 'false'"
+                   :class="$view === 'tabel' ? 'ring-2 ring-slate-700 ring-offset-2' : 'opacity-60 hover:opacity-100'">Tabel</x-btn>
+            <x-btn variant="secondary" icon="view-columns" wire:click="$set('view', 'kanban')" :aria-pressed="$view === 'kanban' ? 'true' : 'false'"
+                   :class="$view === 'kanban' ? 'ring-2 ring-slate-700 ring-offset-2' : 'opacity-60 hover:opacity-100'">Kanban</x-btn>
         </div>
     </div>
 
@@ -70,7 +72,7 @@
                                 </td>
                                 <td class="px-4 py-3 text-right">
                                     @if ($item->canUpdate($me))
-                                        <button wire:click="openUpdate({{ $item->id }})" class="btn-secondary btn-sm">Perbarui</button>
+                                        <x-btn variant="secondary" size="sm" icon="arrow-path" wire:click="openUpdate({{ $item->id }})">Perbarui</x-btn>
                                     @endif
                                 </td>
                             </tr>

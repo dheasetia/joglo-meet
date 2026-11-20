@@ -2,7 +2,7 @@
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-bold text-slate-900">Daftar Rapat</h1>
         @if ($canCreate)
-            <a href="{{ route('meetings.create') }}" wire:navigate class="btn-primary">+ Rapat Baru</a>
+            <x-btn :href="route('meetings.create')" wire:navigate icon="plus">Rapat Baru</x-btn>
         @endif
     </div>
 
@@ -19,7 +19,7 @@
         <input type="date" wire:model.live="from" class="input" title="Dari tanggal">
         <div class="flex gap-2">
             <input type="date" wire:model.live="to" class="input" title="Sampai tanggal">
-            <button wire:click="resetFilters" class="btn-ghost" title="Reset filter">✕</button>
+            <x-btn variant="secondary" icon="x-mark" wire:click="resetFilters" title="Reset filter" aria-label="Reset filter" />
         </div>
     </div>
 

@@ -27,7 +27,7 @@
         </div>
     </div>
     <div class="mt-2 flex justify-end gap-2">
-        <button wire:click="cancelEditing" class="btn-ghost btn-sm">Batal</button>
-        <button wire:click="saveRtl" class="btn-primary btn-sm">Simpan RTL</button>
+        <x-btn variant="warning" size="sm" icon="arrow-uturn-left" wire:click="cancelEditing">Batal</x-btn>
+        <x-btn size="sm" icon="check" wire:click="saveRtl">Simpan RTL</x-btn>
     </div>
 </div>

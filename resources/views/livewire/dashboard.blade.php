@@ -5,7 +5,7 @@
             <h1 class="text-2xl font-bold text-slate-900">Assalamu'alaikum, {{ auth()->user()->name }}</h1>
         </div>
         @if (auth()->user()->canCreateMeeting())
-            <a href="{{ route('meetings.create') }}" wire:navigate class="btn-primary">+ Rapat Baru</a>
+            <x-btn :href="route('meetings.create')" wire:navigate icon="plus">Rapat Baru</x-btn>
         @endif
     </div>
 

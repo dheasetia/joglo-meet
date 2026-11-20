@@ -90,6 +90,9 @@ class InteractionSmokeTest extends TestCase
 
         $room = Livewire::test(MeetingRoom::class, ['meeting' => $meeting])
             ->call('startMeeting')
+            // tombol salin tautan presensi harus berisi URL asli, bukan "@js(...)" mentah
+            ->assertSeeHtml('navigator.clipboard.writeText(')
+            ->assertDontSeeHtml('@js(')
             ->call('selectAgenda', $carryAgenda->id)
             ->assertSee('Koordinasi jadwal mandi kelas XI')
             ->set("carry.{$open->id}.status", 'selesai')

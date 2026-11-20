@@ -49,8 +49,8 @@
             @endif
 
             <div class="mt-5 flex justify-end gap-2">
-                <button wire:click="closeUpdate" class="btn-ghost">Batal</button>
-                <button wire:click="saveUpdate" class="btn-primary">Simpan Progres</button>
+                <x-btn variant="warning" icon="arrow-uturn-left" wire:click="closeUpdate">Batal</x-btn>
+                <x-btn icon="check" wire:click="saveUpdate">Simpan Progres</x-btn>
             </div>
         </div>
     </div>

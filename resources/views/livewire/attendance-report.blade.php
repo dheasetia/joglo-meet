@@ -1,7 +1,7 @@
 <div class="space-y-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-bold text-slate-900">Rekap Kehadiran Rapat</h1>
-        <button onclick="window.print()" class="btn-secondary print:hidden">🖨 Cetak</button>
+        <x-btn variant="secondary" icon="printer" onclick="window.print()" class="print:hidden">Cetak</x-btn>
     </div>
 
     <div class="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4 print:hidden">

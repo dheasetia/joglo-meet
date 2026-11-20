@@ -3,7 +3,7 @@
     <div class="card p-5">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="min-w-0">
-                <a href="{{ route('meetings.index') }}" wire:navigate class="text-sm text-slate-500 hover:text-brand-700">← Daftar rapat</a>
+                <x-btn variant="secondary" size="sm" icon="arrow-left" :href="route('meetings.index')" wire:navigate class="mb-2">Daftar rapat</x-btn>
                 <div class="mt-1 flex flex-wrap items-center gap-2">
                     <h1 class="text-xl font-bold text-slate-900 sm:text-2xl">{{ $meeting->title }}</h1>
                     <span class="badge {{ $meeting->status->badge() }}">{{ $meeting->status->label() }}</span>
@@ -33,21 +33,21 @@
 
                 @if ($canEdit)
                     @if ($meeting->status === \App\Enums\MeetingStatus::Terjadwal)
-                        <a href="{{ route('meetings.edit', $meeting->id) }}" wire:navigate class="btn-secondary">Ubah</a>
-                        <button wire:click="cancelMeeting" wire:confirm="Batalkan rapat ini?" class="btn-ghost text-rose-600">Batalkan</button>
-                        <button wire:click="startMeeting" class="btn-primary">▶ Mulai Rapat</button>
+                        <x-btn variant="secondary" icon="pencil-square" :href="route('meetings.edit', $meeting->id)" wire:navigate>Ubah</x-btn>
+                        <x-btn variant="warning" icon="arrow-uturn-left" wire:click="cancelMeeting" wire:confirm="Batalkan rapat ini?">Batalkan</x-btn>
+                        <x-btn icon="play" wire:click="startMeeting">Mulai Rapat</x-btn>
                     @elseif ($meeting->status === \App\Enums\MeetingStatus::Berlangsung)
-                        <a href="{{ route('meetings.edit', $meeting->id) }}" wire:navigate class="btn-secondary">Ubah agenda/peserta</a>
-                        <button wire:click="endMeeting" wire:confirm="Akhiri rapat? Peserta yang belum presensi akan ditandai alpa." class="btn-danger">■ Akhiri Rapat</button>
+                        <x-btn variant="secondary" icon="pencil-square" :href="route('meetings.edit', $meeting->id)" wire:navigate>Ubah agenda/peserta</x-btn>
+                        <x-btn variant="danger" icon="stop" wire:click="endMeeting" wire:confirm="Akhiri rapat? Peserta yang belum presensi akan ditandai alpa.">Akhiri Rapat</x-btn>
                     @endif
                 @endif
                 @if ($meeting->status === \App\Enums\MeetingStatus::Selesai && $canApprove)
-                    <button wire:click="approve" wire:confirm="Sahkan notulen ini? Setelah disahkan, notulen terkunci." class="btn-primary">✓ Sahkan Notulen</button>
+                    <x-btn icon="check-badge" wire:click="approve" wire:confirm="Sahkan notulen ini? Setelah disahkan, notulen terkunci.">Sahkan Notulen</x-btn>
                 @endif
                 @if ($meeting->status === \App\Enums\MeetingStatus::Disahkan && $isAdmin)
-                    <button wire:click="reopen" wire:confirm="Batalkan pengesahan agar notulen bisa diubah?" class="btn-ghost">Buka kunci</button>
+                    <x-btn variant="warning" icon="lock-open" wire:click="reopen" wire:confirm="Batalkan pengesahan agar notulen bisa diubah?">Buka kunci</x-btn>
                 @endif
-                <a href="{{ route('meetings.print', $meeting->id) }}" target="_blank" class="btn-secondary">🖨 Cetak / PDF</a>
+                <x-btn variant="secondary" icon="printer" :href="route('meetings.print', $meeting->id)" target="_blank">Cetak / PDF</x-btn>
             </div>
         </div>
 
@@ -133,7 +133,7 @@
                                                     <span class="text-sm text-slate-500">%</span>
                                                 </div>
                                                 <input type="text" wire:model="carry.{{ $item->id }}.note" placeholder="Catatan evaluasi…" class="input sm:col-span-4">
-                                                <button wire:click="saveCarry({{ $item->id }})" class="btn-primary sm:col-span-2">Catat</button>
+                                                <x-btn icon="check" wire:click="saveCarry({{ $item->id }})" class="sm:col-span-2">Catat</x-btn>
                                             </div>
                                         @endif
                                     </div>
@@ -164,8 +164,8 @@
                                     <textarea wire:model="editingDecisionText" rows="2" class="input"></textarea>
                                     @error('editingDecisionText') <p class="error">{{ $message }}</p> @enderror
                                     <div class="mt-2 flex justify-end gap-2">
-                                        <button wire:click="cancelEditing" class="btn-ghost btn-sm">Batal</button>
-                                        <button wire:click="updateDecision" class="btn-primary btn-sm">Simpan</button>
+                                        <x-btn variant="warning" size="sm" icon="arrow-uturn-left" wire:click="cancelEditing">Batal</x-btn>
+                                        <x-btn size="sm" icon="check" wire:click="updateDecision">Simpan</x-btn>
                                     </div>
                                 @else
                                     <div class="flex items-start gap-3">
@@ -173,8 +173,8 @@
                                         <p class="flex-1 text-sm font-medium text-slate-800">{{ $decision->content }}</p>
                                         @if ($canEdit)
                                             <div class="flex shrink-0 gap-1">
-                                                <button wire:click="editDecision({{ $decision->id }})" class="btn-ghost btn-sm">Ubah</button>
-                                                <button wire:click="deleteDecision({{ $decision->id }})" wire:confirm="Hapus keputusan ini beserta RTL-nya?" class="btn-ghost btn-sm text-rose-600">Hapus</button>
+                                                <x-btn variant="secondary" size="sm" icon="pencil-square" wire:click="editDecision({{ $decision->id }})">Ubah</x-btn>
+                                                <x-btn variant="danger" size="sm" icon="trash" wire:click="deleteDecision({{ $decision->id }})" wire:confirm="Hapus keputusan ini beserta RTL-nya?">Hapus</x-btn>
                                             </div>
                                         @endif
                                     </div>
@@ -193,8 +193,8 @@
                                                 <span class="badge {{ $item->priority->badge() }}">{{ $item->priority->label() }}</span>
                                                 <span class="badge {{ $item->status->badge() }}">{{ $item->status->label() }}</span>
                                                 @if ($canEdit)
-                                                    <button wire:click="editRtl({{ $item->id }})" class="text-xs font-semibold text-slate-500 hover:text-brand-700">Ubah</button>
-                                                    <button wire:click="deleteRtl({{ $item->id }})" wire:confirm="Hapus RTL ini?" class="text-xs font-semibold text-rose-500 hover:text-rose-700">Hapus</button>
+                                                    <x-btn variant="secondary" size="sm" icon="pencil-square" wire:click="editRtl({{ $item->id }})" title="Ubah RTL" aria-label="Ubah RTL" />
+                                                    <x-btn variant="danger" size="sm" icon="trash" wire:click="deleteRtl({{ $item->id }})" wire:confirm="Hapus RTL ini?" title="Hapus RTL" aria-label="Hapus RTL" />
                                                 @endif
                                             </div>
                                         @endif
@@ -204,7 +204,7 @@
                                         @if ($rtlDecisionId === $decision->id && ! $editingRtlId)
                                             @include('livewire.partials.rtl-form')
                                         @elseif ($editingDecisionId !== $decision->id)
-                                            <button wire:click="openRtlForm({{ $decision->id }})" class="text-xs font-semibold text-brand-700 hover:underline">+ Tambah RTL</button>
+                                            <x-btn size="sm" icon="clipboard-document-check" wire:click="openRtlForm({{ $decision->id }})">Tambah RTL</x-btn>
                                         @endif
                                     @endif
                                 </div>
@@ -219,7 +219,7 @@
                             <label class="label">Keputusan baru</label>
                             <div class="flex flex-col gap-2 sm:flex-row">
                                 <textarea wire:model="newDecision" rows="2" class="input flex-1" placeholder="Tuliskan keputusan yang disepakati forum…"></textarea>
-                                <button wire:click="addDecision" class="btn-primary sm:self-end">+ Catat Keputusan</button>
+                                <x-btn icon="document-plus" wire:click="addDecision" class="sm:self-end">Catat Keputusan</x-btn>
                             </div>
                             @error('newDecision') <p class="error">{{ $message }}</p> @enderror
                         </div>
@@ -233,8 +233,8 @@
                     $next = $agendas[$idx + 1] ?? null;
                 @endphp
                 <div class="flex justify-between">
-                    @if ($prev) <button wire:click="selectAgenda({{ $prev->id }})" class="btn-ghost">← {{ \Illuminate\Support\Str::limit($prev->title, 30) }}</button> @else <span></span> @endif
-                    @if ($next) <button wire:click="selectAgenda({{ $next->id }})" class="btn-secondary">{{ \Illuminate\Support\Str::limit($next->title, 30) }} →</button> @endif
+                    @if ($prev) <x-btn variant="secondary" icon="arrow-left" wire:click="selectAgenda({{ $prev->id }})" :title="$prev->title">{{ \Illuminate\Support\Str::limit($prev->title, 30) }}</x-btn> @else <span></span> @endif
+                    @if ($next) <x-btn variant="secondary" icon="arrow-right" wire:click="selectAgenda({{ $next->id }})" :title="$next->title">{{ \Illuminate\Support\Str::limit($next->title, 30) }}</x-btn> @endif
                 </div>
             @else
                 <div class="card p-10 text-center text-slate-400">Rapat ini belum memiliki agenda.</div>
@@ -260,7 +260,7 @@
                     <p class="text-sm text-slate-500">{{ $attendance['present'] }} dari {{ $attendance['total'] }} peserta hadir ({{ $attendance['percent'] }}%)</p>
                 </div>
                 @if ($canEdit)
-                    <button wire:click="setAllPresent" class="btn-secondary btn-sm">Tandai semua hadir</button>
+                    <x-btn size="sm" icon="user-group" wire:click="setAllPresent">Tandai semua hadir</x-btn>
                 @endif
             </div>
 
@@ -293,7 +293,7 @@
                                        class="input w-full sm:w-48">
                             @endif
                             @if (! in_array($p->user_id, [$meeting->chair_id, $meeting->secretary_id], true))
-                                <button wire:click="removeParticipant({{ $p->id }})" wire:confirm="Hapus {{ $p->displayName() }} dari daftar peserta?" class="text-slate-300 hover:text-rose-600" title="Hapus peserta">✕</button>
+                                <x-btn variant="danger" size="sm" icon="trash" wire:click="removeParticipant({{ $p->id }})" wire:confirm="Hapus {{ $p->displayName() }} dari daftar peserta?" title="Hapus peserta" aria-label="Hapus peserta" />
                             @endif
                         @else
                             <span class="badge {{ $p->attendance_status->badge() }}">{{ $p->attendance_status->label() }}</span>
@@ -309,7 +309,7 @@
                     <div class="flex flex-col gap-2 sm:flex-row">
                         <input type="text" wire:model="guestName" placeholder="Nama" class="input">
                         <input type="text" wire:model="guestInfo" placeholder="Instansi / keterangan" class="input">
-                        <button wire:click="addGuest" class="btn-secondary shrink-0">+ Tambah</button>
+                        <x-btn icon="user-plus" wire:click="addGuest">Tambah tamu</x-btn>
                     </div>
                     @error('guestName') <p class="error">{{ $message }}</p> @enderror
                 </div>
@@ -324,10 +324,10 @@
                     <canvas x-ref="qr" class="rounded-xl border border-slate-200"></canvas>
                 </div>
                 <div x-data="{ copied: false }" class="mt-4">
-                    <button x-on:click="navigator.clipboard.writeText(@js($checkinUrl)); copied = true; setTimeout(() => copied = false, 2000)" class="btn-secondary btn-sm">
+                    <x-btn variant="secondary" size="sm" icon="clipboard" x-on:click="navigator.clipboard.writeText({{ \Illuminate\Support\Js::from($checkinUrl) }}); copied = true; setTimeout(() => copied = false, 2000)">
                         <span x-show="! copied">Salin tautan presensi</span>
-                        <span x-show="copied" x-cloak>Tersalin ✓</span>
-                    </button>
+                        <span x-show="copied" x-cloak>Tersalin</span>
+                    </x-btn>
                 </div>
             </section>
         @endif

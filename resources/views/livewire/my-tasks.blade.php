@@ -24,7 +24,7 @@
                         <span class="badge {{ $item->status->badge() }}">{{ $item->status->label() }}</span>
                         <span @class(['ml-2', 'font-semibold text-rose-600' => $item->isOverdue(), 'text-slate-500' => ! $item->isOverdue()])>⏰ {{ $item->due_date->translatedFormat('d M Y') }} · {{ $item->daysLeftLabel() }}</span>
                     </div>
-                    <button wire:click="openUpdate({{ $item->id }})" class="btn-primary btn-sm">Perbarui</button>
+                    <x-btn variant="secondary" size="sm" icon="arrow-path" wire:click="openUpdate({{ $item->id }})">Perbarui</x-btn>
                 </div>
             </div>
         @empty
@@ -37,9 +37,9 @@
     </div>
 
     <div>
-        <button wire:click="$toggle('showDone')" class="text-sm font-semibold text-brand-700 hover:underline">
+        <x-btn variant="secondary" size="sm" :icon="$showDone ? 'eye-slash' : 'eye'" wire:click="$toggle('showDone')">
             {{ $showDone ? 'Sembunyikan' : 'Tampilkan' }} tugas selesai ({{ $doneCount }})
-        </button>
+        </x-btn>
         @if ($showDone)
             <div class="mt-3 divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white">
                 @foreach ($done as $item)

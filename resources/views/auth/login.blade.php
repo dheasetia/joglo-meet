@@ -19,7 +19,7 @@
             <label class="flex items-center gap-2 text-sm text-slate-600">
                 <input type="checkbox" name="remember" class="rounded border-slate-300 text-brand-600"> Ingat saya
             </label>
-            <button class="btn-primary w-full">Masuk</button>
+            <x-btn type="submit" icon="arrow-right-end-on-rectangle" class="w-full">Masuk</x-btn>
         </form>
         <p class="mt-6 text-center text-xs text-gold-200/70">“Dan urusan mereka diputuskan dengan musyawarah antara mereka.” — QS. Asy-Syura: 38</p>
     </div>

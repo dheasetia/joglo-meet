@@ -33,14 +33,19 @@
         .sign div { width: 45%; }
         .sign .space { height: 70px; }
         .toolbar { position: sticky; top: 0; background: #fbf3f5; border-bottom: 1px solid #edc8d0; padding: 10px; text-align: center; font-family: system-ui, sans-serif; font-size: 14px; }
-        .toolbar button { background: #ae152d; color: #fff; border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 600; cursor: pointer; }
+        .toolbar button { display: inline-flex; align-items: center; gap: 6px; background: #334155; color: #fff; border: 0; border-radius: 12px; padding: 8px 14px; font: 600 14px system-ui, sans-serif; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / .05); transition: transform .15s ease-out, box-shadow .15s ease-out, background-color .15s ease-out; }
+        .toolbar button:hover { background: #1e293b; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1); }
+        .toolbar button:active { transform: translateY(0) scale(.98); }
+        .toolbar button:focus-visible { outline: none; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #475569; }
+        .toolbar button svg { width: 16px; height: 16px; }
+        @media (prefers-reduced-motion: reduce) { .toolbar button { transition: none; } .toolbar button:hover { transform: none; } }
         .watermark { color: #b91c1c; font-weight: bold; text-align: center; margin-bottom: 8px; font-family: system-ui, sans-serif; font-size: 10pt; }
         @media print { .toolbar { display: none; } .wrap { padding: 0; } }
     </style>
 </head>
 <body>
 <div class="toolbar">
-    <button onclick="window.print()">🖨 Cetak / Simpan sebagai PDF</button>
+    <button type="button" onclick="window.print()">@svg('heroicon-o-printer', ['aria-hidden' => 'true']) Cetak / Simpan sebagai PDF</button>
     <span style="margin-left: 8px; color:#592635">Pilih “Save as PDF” pada dialog cetak untuk menyimpan berkas PDF.</span>
 </div>
 

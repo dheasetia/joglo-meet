@@ -1,13 +1,13 @@
 <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <a href="{{ $meetingId ? route('meetings.show', $meetingId) : route('meetings.index') }}" wire:navigate class="text-sm text-slate-500 hover:text-brand-700">← Kembali</a>
+            <x-btn variant="secondary" size="sm" icon="arrow-left" :href="$meetingId ? route('meetings.show', $meetingId) : route('meetings.index')" wire:navigate class="mb-2">Kembali</x-btn>
             <h1 class="text-2xl font-bold text-slate-900">{{ $meetingId ? 'Ubah Rapat' : 'Rapat Baru' }}</h1>
         </div>
-        <button wire:click="save" wire:loading.attr="disabled" class="btn-primary">
+        <x-btn icon="check" wire:click="save" wire:loading.attr="disabled" wire:target="save">
             <span wire:loading.remove wire:target="save">Simpan Rapat</span>
             <span wire:loading wire:target="save">Menyimpan…</span>
-        </button>
+        </x-btn>
     </div>
 
     @if ($errors->any())
@@ -103,7 +103,7 @@
             <div class="border-t border-slate-100 pt-4">
                 <div class="mb-3 flex items-center justify-between">
                     <h2 class="font-semibold text-slate-800">Agenda Rapat</h2>
-                    <button type="button" wire:click="addAgenda" class="btn-secondary btn-sm">+ Tambah agenda</button>
+                    <x-btn size="sm" icon="plus" wire:click="addAgenda">Tambah agenda</x-btn>
                 </div>
                 @error('agendas') <p class="error mb-2">{{ $message }}</p> @enderror
 
@@ -126,11 +126,11 @@
                                     </select>
                                     <input type="number" min="1" wire:model="agendas.{{ $i }}.duration_minutes" class="input" placeholder="Menit">
                                 </div>
-                                <div class="flex shrink-0 flex-col">
-                                    <button type="button" wire:click="moveAgenda({{ $i }}, -1)" @disabled($i === 0) class="btn-ghost btn-sm" title="Naik">▲</button>
-                                    <button type="button" wire:click="moveAgenda({{ $i }}, 1)" @disabled($i === count($agendas) - 1) class="btn-ghost btn-sm" title="Turun">▼</button>
+                                <div class="flex shrink-0 flex-col gap-1">
+                                    <x-btn variant="secondary" size="sm" icon="chevron-up" wire:click="moveAgenda({{ $i }}, -1)" :disabled="$i === 0" title="Naik" aria-label="Naikkan agenda" />
+                                    <x-btn variant="secondary" size="sm" icon="chevron-down" wire:click="moveAgenda({{ $i }}, 1)" :disabled="$i === count($agendas) - 1" title="Turun" aria-label="Turunkan agenda" />
                                 </div>
-                                <button type="button" wire:click="removeAgenda({{ $i }})" wire:confirm="Hapus agenda ini? Pembahasan & keputusan di dalamnya ikut terhapus saat disimpan." class="btn-ghost btn-sm mt-1 text-rose-600" title="Hapus">✕</button>
+                                <x-btn variant="danger" size="sm" icon="trash" wire:click="removeAgenda({{ $i }})" wire:confirm="Hapus agenda ini? Pembahasan & keputusan di dalamnya ikut terhapus saat disimpan." title="Hapus agenda" aria-label="Hapus agenda" />
                             </div>
                         </li>
                     @endforeach
@@ -156,7 +156,7 @@
                     <div wire:key="unit-{{ $unitName }}">
                         <div class="mb-1 flex items-center justify-between">
                             <p class="text-xs font-bold tracking-wide text-slate-500 uppercase">{{ $unitName }}</p>
-                            <button type="button" wire:click="toggleUnit({{ $unitIds[$unitName] ?? 'null' }})" class="text-xs font-semibold text-brand-700 hover:underline">Pilih/batal semua</button>
+                            <x-btn variant="secondary" size="sm" icon="check-circle" wire:click="toggleUnit({{ $unitIds[$unitName] ?? 'null' }})">Pilih/batal semua</x-btn>
                         </div>
                         <div class="space-y-1">
                             @foreach ($members as $u)

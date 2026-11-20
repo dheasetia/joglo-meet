@@ -10,6 +10,6 @@
         <h1 class="text-lg font-bold text-slate-800">{{ $meeting->title }}</h1>
         <p class="mb-4 text-sm text-slate-500">{{ $meeting->date->translatedFormat('l, d F Y') }} · {{ $meeting->timeRange() }}</p>
         <p class="mb-6 text-sm font-medium {{ $ok ? 'text-emerald-700' : 'text-rose-700' }}">{{ $message }}</p>
-        <a href="{{ route('dashboard') }}" class="btn-secondary w-full">Ke Dashboard</a>
+        <x-btn variant="secondary" icon="home" :href="route('dashboard')" class="w-full">Ke Dashboard</x-btn>
     </div>
 </x-layouts.guest>
