@@ -3,7 +3,7 @@
     <div class="card p-5">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="min-w-0">
-                <a href="{{ route('meetings.index') }}" wire:navigate class="text-sm text-slate-500 hover:text-emerald-700">← Daftar rapat</a>
+                <a href="{{ route('meetings.index') }}" wire:navigate class="text-sm text-slate-500 hover:text-brand-700">← Daftar rapat</a>
                 <div class="mt-1 flex flex-wrap items-center gap-2">
                     <h1 class="text-xl font-bold text-slate-900 sm:text-2xl">{{ $meeting->title }}</h1>
                     <span class="badge {{ $meeting->status->badge() }}">{{ $meeting->status->label() }}</span>
@@ -13,7 +13,7 @@
                     <span>📅 {{ $meeting->date->translatedFormat('l, d F Y') }}</span>
                     <span>🕐 {{ $meeting->timeRange() }}</span>
                     @if ($meeting->location) <span>📍 {{ $meeting->location }}</span> @endif
-                    @if ($meeting->online_link) <a href="{{ $meeting->online_link }}" target="_blank" rel="noopener" class="text-emerald-700 hover:underline">🔗 Tautan daring</a> @endif
+                    @if ($meeting->online_link) <a href="{{ $meeting->online_link }}" target="_blank" rel="noopener" class="text-brand-700 hover:underline">🔗 Tautan daring</a> @endif
                 </div>
                 <p class="mt-1 text-sm text-slate-500">
                     Pimpinan: <b class="text-slate-700">{{ $meeting->chair->name }}</b>
@@ -55,7 +55,7 @@
         <div class="mt-5 flex gap-1 overflow-x-auto border-b border-slate-200 text-sm font-semibold">
             @foreach (['notulen' => 'Notulen', 'presensi' => 'Presensi ('.$attendance['present'].'/'.$attendance['total'].')', 'rtl' => 'RTL ('.$allActions->count().')'] as $key => $label)
                 <button type="button" x-on:click="tab = '{{ $key }}'"
-                        :class="tab === '{{ $key }}' ? 'border-emerald-600 text-emerald-700' : 'border-transparent text-slate-500 hover:text-slate-700'"
+                        :class="tab === '{{ $key }}' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-700'"
                         class="-mb-px border-b-2 px-4 py-2 whitespace-nowrap">{{ $label }}</button>
             @endforeach
         </div>
@@ -73,7 +73,7 @@
                         <li wire:key="nav-{{ $a->id }}" class="shrink-0">
                             <button type="button" wire:click="selectAgenda({{ $a->id }})"
                                     @class(['flex w-full items-start gap-2 rounded-xl px-3 py-2 text-left text-sm transition',
-                                            'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200' => $a->id === $activeAgendaId,
+                                            'bg-brand-50 text-brand-800 ring-1 ring-brand-200' => $a->id === $activeAgendaId,
                                             'text-slate-700 hover:bg-slate-50' => $a->id !== $activeAgendaId])>
                                 <span class="font-bold text-slate-400">{{ $loop->iteration }}.</span>
                                 <span class="min-w-0 flex-1">
@@ -105,8 +105,8 @@
 
                     {{-- Evaluasi RTL rapat sebelumnya --}}
                     @if ($activeAgenda->is_carry_over)
-                        <div class="mb-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
-                            <p class="mb-3 text-sm font-semibold text-emerald-800">RTL dari rapat sebelumnya yang belum selesai</p>
+                        <div class="mb-4 rounded-xl border border-brand-100 bg-brand-50/50 p-4">
+                            <p class="mb-3 text-sm font-semibold text-brand-800">RTL dari rapat sebelumnya yang belum selesai</p>
                             <div class="space-y-3">
                                 @forelse ($carryOver as $item)
                                     <div wire:key="carry-{{ $item->id }}" class="rounded-xl border border-slate-200 bg-white p-3">
@@ -169,7 +169,7 @@
                                     </div>
                                 @else
                                     <div class="flex items-start gap-3">
-                                        <span class="grid size-6 shrink-0 place-items-center rounded-full bg-emerald-600 text-xs font-bold text-white">✓</span>
+                                        <span class="grid size-6 shrink-0 place-items-center rounded-full bg-brand-600 text-xs font-bold text-white">✓</span>
                                         <p class="flex-1 text-sm font-medium text-slate-800">{{ $decision->content }}</p>
                                         @if ($canEdit)
                                             <div class="flex shrink-0 gap-1">
@@ -193,7 +193,7 @@
                                                 <span class="badge {{ $item->priority->badge() }}">{{ $item->priority->label() }}</span>
                                                 <span class="badge {{ $item->status->badge() }}">{{ $item->status->label() }}</span>
                                                 @if ($canEdit)
-                                                    <button wire:click="editRtl({{ $item->id }})" class="text-xs font-semibold text-slate-500 hover:text-emerald-700">Ubah</button>
+                                                    <button wire:click="editRtl({{ $item->id }})" class="text-xs font-semibold text-slate-500 hover:text-brand-700">Ubah</button>
                                                     <button wire:click="deleteRtl({{ $item->id }})" wire:confirm="Hapus RTL ini?" class="text-xs font-semibold text-rose-500 hover:text-rose-700">Hapus</button>
                                                 @endif
                                             </div>
@@ -204,7 +204,7 @@
                                         @if ($rtlDecisionId === $decision->id && ! $editingRtlId)
                                             @include('livewire.partials.rtl-form')
                                         @elseif ($editingDecisionId !== $decision->id)
-                                            <button wire:click="openRtlForm({{ $decision->id }})" class="text-xs font-semibold text-emerald-700 hover:underline">+ Tambah RTL</button>
+                                            <button wire:click="openRtlForm({{ $decision->id }})" class="text-xs font-semibold text-brand-700 hover:underline">+ Tambah RTL</button>
                                         @endif
                                     @endif
                                 </div>
@@ -270,7 +270,7 @@
                         <div class="min-w-0 flex-1">
                             <p class="text-sm font-medium text-slate-800">
                                 {{ $p->displayName() }}
-                                @if ($p->user_id === $meeting->chair_id) <span class="badge bg-emerald-100 text-emerald-700">Pimpinan</span> @endif
+                                @if ($p->user_id === $meeting->chair_id) <span class="badge bg-brand-100 text-brand-700">Pimpinan</span> @endif
                                 @if ($p->user_id && $p->user_id === $meeting->secretary_id) <span class="badge bg-sky-100 text-sky-700">Notulis</span> @endif
                             </p>
                             <p class="text-xs text-slate-500">
@@ -363,7 +363,7 @@
                             <td class="px-4 py-3"><span class="badge {{ $item->status->badge() }}">{{ $item->status->label() }}</span></td>
                             <td class="px-4 py-3">
                                 <div class="flex items-center gap-2">
-                                    <div class="h-2 w-20 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-emerald-500" style="width: {{ $item->progress }}%"></div></div>
+                                    <div class="h-2 w-20 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand-500" style="width: {{ $item->progress }}%"></div></div>
                                     <span class="text-xs text-slate-500">{{ $item->progress }}%</span>
                                 </div>
                             </td>
@@ -374,6 +374,6 @@
                 </tbody>
             </table>
         </div>
-        <p class="border-t border-slate-100 px-4 py-3 text-xs text-slate-500">Penanggung jawab memperbarui progres dari menu <a href="{{ route('actions.mine') }}" wire:navigate class="font-semibold text-emerald-700">Tugas Saya</a>. RTL yang belum selesai otomatis muncul pada agenda “Evaluasi RTL” di rapat berikutnya dengan jenis yang sama.</p>
+        <p class="border-t border-slate-100 px-4 py-3 text-xs text-slate-500">Penanggung jawab memperbarui progres dari menu <a href="{{ route('actions.mine') }}" wire:navigate class="font-semibold text-brand-700">Tugas Saya</a>. RTL yang belum selesai otomatis muncul pada agenda “Evaluasi RTL” di rapat berikutnya dengan jenis yang sama.</p>
     </div>
 </div>

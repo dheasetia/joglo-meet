@@ -1,6 +1,6 @@
 {{-- Form tambah/ubah RTL di Ruang Rapat. Variabel: $users --}}
-<div wire:key="rtl-form-{{ $editingRtlId ?? 'new' }}" class="rounded-xl border border-emerald-200 bg-emerald-50/40 p-3">
-    <p class="mb-2 text-xs font-bold tracking-wide text-emerald-800 uppercase">{{ $editingRtlId ? 'Ubah RTL' : 'RTL baru' }}</p>
+<div wire:key="rtl-form-{{ $editingRtlId ?? 'new' }}" class="rounded-xl border border-brand-200 bg-brand-50/40 p-3">
+    <p class="mb-2 text-xs font-bold tracking-wide text-brand-800 uppercase">{{ $editingRtlId ? 'Ubah RTL' : 'RTL baru' }}</p>
     <div class="grid gap-2 sm:grid-cols-12">
         <div class="sm:col-span-12">
             <input type="text" wire:model="rtl.title" class="input" placeholder="Uraian tugas, mis. Menyusun jadwal piket musyrif">

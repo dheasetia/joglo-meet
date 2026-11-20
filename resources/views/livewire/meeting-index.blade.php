@@ -26,12 +26,12 @@
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3" wire:loading.class="opacity-60">
         @forelse ($meetings as $m)
             @php $sum = $m->attendanceSummary(); @endphp
-            <a href="{{ route('meetings.show', $m) }}" wire:navigate wire:key="m-{{ $m->id }}" class="card group flex flex-col p-5 transition hover:border-emerald-300 hover:shadow-md">
+            <a href="{{ route('meetings.show', $m) }}" wire:navigate wire:key="m-{{ $m->id }}" class="card group flex flex-col p-5 transition hover:border-brand-300 hover:shadow-md">
                 <div class="mb-3 flex items-start justify-between gap-2">
                     <span class="badge {{ $m->status->badge() }}">{{ $m->status->label() }}</span>
                     @if ($m->isConfidential()) <span class="badge bg-slate-800 text-white">Rahasia</span> @endif
                 </div>
-                <h2 class="font-semibold text-slate-900 group-hover:text-emerald-700">{{ $m->title }}</h2>
+                <h2 class="font-semibold text-slate-900 group-hover:text-brand-700">{{ $m->title }}</h2>
                 <p class="text-xs text-slate-500">{{ $m->type?->name ?? 'Rapat umum' }}{{ $m->unit ? ' · '.$m->unit->name : '' }}</p>
                 <div class="mt-3 space-y-1 text-sm text-slate-600">
                     <p>📅 {{ $m->date->translatedFormat('l, d M Y') }} · {{ $m->timeRange() }}</p>

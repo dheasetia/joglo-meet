@@ -16,6 +16,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
@@ -31,7 +32,19 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->brandName('Manajemen Rapat · Data Master')
-            ->colors(['primary' => Color::Emerald])
+            ->brandLogo(fn () => new HtmlString(
+                '<span style="display:flex;align-items:center;gap:.6rem">'
+                .'<img src="'.asset('images/logo-joglo-quran-192.png').'" alt="" style="height:2.25rem;width:2.25rem;border-radius:9999px">'
+                .'<span style="font-weight:700;line-height:1.1">Manajemen Rapat<br><span style="font-size:.75rem;font-weight:500;opacity:.7">Data Master</span></span>'
+                .'</span>'
+            ))
+            ->brandLogoHeight('2.5rem')
+            ->favicon(asset('images/favicon-32.png'))
+            // Warna identitas jogloquran.com
+            ->colors([
+                'primary' => Color::hex('#ae152d'),
+                'gray' => Color::Slate,
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->pages([Dashboard::class])
             ->navigationItems([

@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon-32.png') }}">
     <title>Notulen – {{ $meeting->title }} – {{ $meeting->date->format('Y-m-d') }}</title>
     <style>
         @page { size: A4; margin: 18mm 18mm 20mm; }
@@ -10,6 +11,8 @@
         .wrap { max-width: 800px; margin: 0 auto; padding: 24px; }
         .kop { display: flex; align-items: center; gap: 16px; border-bottom: 3px double #111; padding-bottom: 10px; margin-bottom: 18px; text-align: center; }
         .kop div { flex: 1; }
+        .kop img { width: 78px; height: 78px; flex: none; }
+        .kop .spacer { width: 78px; flex: none; }
         .kop h1 { margin: 0; font-size: 17pt; letter-spacing: .5px; text-transform: uppercase; }
         .kop p { margin: 2px 0 0; font-size: 10.5pt; }
         h2.title { text-align: center; font-size: 14pt; margin: 0 0 14px; text-decoration: underline; text-transform: uppercase; }
@@ -29,8 +32,8 @@
         .sign { display: flex; justify-content: space-between; margin-top: 36px; text-align: center; page-break-inside: avoid; }
         .sign div { width: 45%; }
         .sign .space { height: 70px; }
-        .toolbar { position: sticky; top: 0; background: #ecfdf5; border-bottom: 1px solid #a7f3d0; padding: 10px; text-align: center; font-family: system-ui, sans-serif; font-size: 14px; }
-        .toolbar button { background: #059669; color: #fff; border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 600; cursor: pointer; }
+        .toolbar { position: sticky; top: 0; background: #fbf3f5; border-bottom: 1px solid #edc8d0; padding: 10px; text-align: center; font-family: system-ui, sans-serif; font-size: 14px; }
+        .toolbar button { background: #ae152d; color: #fff; border: 0; border-radius: 8px; padding: 8px 16px; font-weight: 600; cursor: pointer; }
         .watermark { color: #b91c1c; font-weight: bold; text-align: center; margin-bottom: 8px; font-family: system-ui, sans-serif; font-size: 10pt; }
         @media print { .toolbar { display: none; } .wrap { padding: 0; } }
     </style>
@@ -38,16 +41,18 @@
 <body>
 <div class="toolbar">
     <button onclick="window.print()">🖨 Cetak / Simpan sebagai PDF</button>
-    <span style="margin-left: 8px; color:#065f46">Pilih “Save as PDF” pada dialog cetak untuk menyimpan berkas PDF.</span>
+    <span style="margin-left: 8px; color:#592635">Pilih “Save as PDF” pada dialog cetak untuk menyimpan berkas PDF.</span>
 </div>
 
 <div class="wrap">
     <div class="kop">
+        <img src="{{ asset('images/logo-joglo-quran.png') }}" alt="Logo">
         <div>
             <h1>{{ config('rapat.institution') }}</h1>
             <p>{{ config('rapat.address') }}</p>
             <p><i>{{ config('rapat.tagline') }}</i></p>
         </div>
+        <span class="spacer"></span>
     </div>
 
     @if ($meeting->status !== \App\Enums\MeetingStatus::Disahkan)

@@ -2,8 +2,8 @@
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-bold text-slate-900">Papan Rencana Tindak Lanjut</h1>
         <div class="inline-flex rounded-xl border border-slate-200 bg-white p-1 text-sm font-semibold">
-            <button wire:click="$set('view', 'tabel')" @class(['rounded-lg px-3 py-1.5', 'bg-emerald-600 text-white' => $view === 'tabel', 'text-slate-500' => $view !== 'tabel'])>Tabel</button>
-            <button wire:click="$set('view', 'kanban')" @class(['rounded-lg px-3 py-1.5', 'bg-emerald-600 text-white' => $view === 'kanban', 'text-slate-500' => $view !== 'kanban'])>Kanban</button>
+            <button wire:click="$set('view', 'tabel')" @class(['rounded-lg px-3 py-1.5', 'bg-brand-600 text-white' => $view === 'tabel', 'text-slate-500' => $view !== 'tabel'])>Tabel</button>
+            <button wire:click="$set('view', 'kanban')" @class(['rounded-lg px-3 py-1.5', 'bg-brand-600 text-white' => $view === 'kanban', 'text-slate-500' => $view !== 'kanban'])>Kanban</button>
         </div>
     </div>
 
@@ -54,7 +54,7 @@
                             <tr wire:key="row-{{ $item->id }}" @class(['bg-rose-50/40' => $item->isOverdue()])>
                                 <td class="px-4 py-3">
                                     <p class="font-medium text-slate-800">{{ $item->title }}</p>
-                                    <a href="{{ route('meetings.show', $item->meeting_id) }}" wire:navigate class="text-xs text-slate-400 hover:text-emerald-700 hover:underline">{{ $item->meeting->title }} · {{ $item->meeting->date->translatedFormat('d M Y') }}</a>
+                                    <a href="{{ route('meetings.show', $item->meeting_id) }}" wire:navigate class="text-xs text-slate-400 hover:text-brand-700 hover:underline">{{ $item->meeting->title }} · {{ $item->meeting->date->translatedFormat('d M Y') }}</a>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap">{{ $item->pic->name }}</td>
                                 <td class="px-4 py-3 whitespace-nowrap">
@@ -64,7 +64,7 @@
                                 <td class="px-4 py-3"><span class="badge {{ $item->status->badge() }}">{{ $item->status->label() }}</span></td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center gap-2">
-                                        <div class="h-2 w-20 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-emerald-500" style="width: {{ $item->progress }}%"></div></div>
+                                        <div class="h-2 w-20 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand-500" style="width: {{ $item->progress }}%"></div></div>
                                         <span class="text-xs text-slate-500">{{ $item->progress }}%</span>
                                     </div>
                                 </td>
@@ -100,7 +100,7 @@
                                     <span class="text-slate-600">👤 {{ $item->pic->name }}</span>
                                     <span @class(['font-semibold text-rose-600' => $item->isOverdue(), 'text-slate-500' => ! $item->isOverdue()])>{{ $item->daysLeftLabel() }}</span>
                                 </div>
-                                <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-emerald-500" style="width: {{ $item->progress }}%"></div></div>
+                                <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand-500" style="width: {{ $item->progress }}%"></div></div>
                             </button>
                         @empty
                             <p class="py-6 text-center text-xs text-slate-400">Kosong</p>

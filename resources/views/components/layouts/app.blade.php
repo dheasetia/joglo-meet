@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ isset($title) ? $title.' · ' : '' }}Manajemen Rapat</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/favicon-32.png') }}">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('images/logo-joglo-quran-192.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/apple-touch-icon.png') }}">
+    <meta name="theme-color" content="#592635">
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -24,12 +28,12 @@
 
 <div class="flex min-h-screen">
     {{-- Sidebar (desktop) --}}
-    <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col bg-gradient-to-b from-emerald-800 to-emerald-950 px-4 py-6 lg:flex">
+    <aside class="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col bg-gradient-to-b from-brand-800 to-brand-950 px-4 py-6 lg:flex">
         <a href="{{ route('dashboard') }}" class="mb-8 flex items-center gap-3 px-2">
-            <span class="grid size-10 place-items-center rounded-xl bg-white/15 text-lg font-bold text-white">MR</span>
+            <img src="{{ asset('images/logo-joglo-quran-192.png') }}" alt="Logo Pesantren Joglo Qur'an" class="size-11 shrink-0 rounded-full ring-2 ring-gold-300/40">
             <span class="leading-tight">
                 <span class="block text-sm font-bold text-white">Manajemen Rapat</span>
-                <span class="block text-xs text-emerald-200">{{ config('rapat.institution') }}</span>
+                <span class="block text-xs text-gold-300/90">{{ config('rapat.institution') }}</span>
             </span>
         </a>
         <nav class="flex-1 space-y-1">
@@ -48,15 +52,15 @@
         </nav>
         <div class="mt-6 rounded-2xl bg-white/10 p-3">
             <div class="flex items-center gap-3">
-                <span class="grid size-9 place-items-center rounded-full bg-emerald-400/30 text-sm font-bold text-white">{{ $user->initials() }}</span>
+                <span class="grid size-9 place-items-center rounded-full bg-gold-300/20 text-sm font-bold text-gold-200">{{ $user->initials() }}</span>
                 <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-semibold text-white">{{ $user->name }}</p>
-                    <p class="truncate text-xs text-emerald-200">{{ $user->role->label() }}</p>
+                    <p class="truncate text-xs text-gold-300/80">{{ $user->role->label() }}</p>
                 </div>
             </div>
             <form method="POST" action="{{ route('logout') }}" class="mt-3">
                 @csrf
-                <button class="w-full rounded-lg bg-white/10 py-1.5 text-xs font-semibold text-emerald-50 hover:bg-white/20">Keluar</button>
+                <button class="w-full rounded-lg bg-white/10 py-1.5 text-xs font-semibold text-brand-50 hover:bg-white/20">Keluar</button>
             </form>
         </div>
     </aside>
@@ -64,7 +68,7 @@
     <div class="flex min-w-0 flex-1 flex-col lg:pl-64">
         {{-- Topbar (mobile) --}}
         <header class="sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white/90 px-4 py-3 backdrop-blur lg:hidden">
-            <span class="text-sm font-bold text-emerald-800">Manajemen Rapat</span>
+            <span class="flex items-center gap-2 text-sm font-bold text-brand-800"><img src="{{ asset('images/logo-joglo-quran-192.png') }}" alt="" class="size-8 rounded-full"> Manajemen Rapat</span>
             <form method="POST" action="{{ route('logout') }}">@csrf<button class="text-xs font-semibold text-slate-500">Keluar</button></form>
         </header>
 
@@ -77,7 +81,7 @@
 {{-- Bottom nav (mobile) --}}
 <nav class="fixed inset-x-0 bottom-0 z-30 grid border-t border-slate-200 bg-white lg:hidden" style="grid-template-columns: repeat({{ count($nav) }}, minmax(0, 1fr))">
     @foreach ($nav as $item)
-        <a href="{{ route($item['route']) }}" wire:navigate @class(['flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium', 'text-emerald-700' => request()->routeIs($item['match']), 'text-slate-500' => ! request()->routeIs($item['match'])])>
+        <a href="{{ route($item['route']) }}" wire:navigate @class(['flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium', 'text-brand-700' => request()->routeIs($item['match']), 'text-slate-500' => ! request()->routeIs($item['match'])])>
             <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}"/></svg>
             {{ $item['label'] }}
         </a>

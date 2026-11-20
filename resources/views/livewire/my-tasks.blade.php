@@ -10,13 +10,13 @@
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
                         <p class="font-semibold text-slate-800">{{ $item->title }}</p>
-                        <a href="{{ route('meetings.show', $item->meeting_id) }}" wire:navigate class="text-xs text-slate-500 hover:text-emerald-700 hover:underline">{{ $item->meeting->title }} · {{ $item->meeting->date->translatedFormat('d M Y') }}</a>
-                        @if ($item->success_indicator) <p class="mt-1 text-xs text-emerald-700">🎯 {{ $item->success_indicator }}</p> @endif
+                        <a href="{{ route('meetings.show', $item->meeting_id) }}" wire:navigate class="text-xs text-slate-500 hover:text-brand-700 hover:underline">{{ $item->meeting->title }} · {{ $item->meeting->date->translatedFormat('d M Y') }}</a>
+                        @if ($item->success_indicator) <p class="mt-1 text-xs text-brand-700">🎯 {{ $item->success_indicator }}</p> @endif
                     </div>
                     <span class="badge {{ $item->priority->badge() }}">{{ $item->priority->label() }}</span>
                 </div>
                 <div class="mt-3 flex items-center gap-3">
-                    <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-emerald-500" style="width: {{ $item->progress }}%"></div></div>
+                    <div class="h-2 flex-1 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand-500" style="width: {{ $item->progress }}%"></div></div>
                     <span class="text-xs font-semibold text-slate-600">{{ $item->progress }}%</span>
                 </div>
                 <div class="mt-3 flex items-center justify-between">
@@ -37,7 +37,7 @@
     </div>
 
     <div>
-        <button wire:click="$toggle('showDone')" class="text-sm font-semibold text-emerald-700 hover:underline">
+        <button wire:click="$toggle('showDone')" class="text-sm font-semibold text-brand-700 hover:underline">
             {{ $showDone ? 'Sembunyikan' : 'Tampilkan' }} tugas selesai ({{ $doneCount }})
         </button>
         @if ($showDone)

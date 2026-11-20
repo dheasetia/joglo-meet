@@ -1,7 +1,7 @@
 <div class="space-y-6">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-            <a href="{{ $meetingId ? route('meetings.show', $meetingId) : route('meetings.index') }}" wire:navigate class="text-sm text-slate-500 hover:text-emerald-700">← Kembali</a>
+            <a href="{{ $meetingId ? route('meetings.show', $meetingId) : route('meetings.index') }}" wire:navigate class="text-sm text-slate-500 hover:text-brand-700">← Kembali</a>
             <h1 class="text-2xl font-bold text-slate-900">{{ $meetingId ? 'Ubah Rapat' : 'Rapat Baru' }}</h1>
         </div>
         <button wire:click="save" wire:loading.attr="disabled" class="btn-primary">
@@ -116,7 +116,7 @@
                                     <div class="sm:col-span-3">
                                         <input type="text" wire:model="agendas.{{ $i }}.title" class="input" placeholder="Judul agenda">
                                         @if ($agenda['is_carry_over'])
-                                            <p class="mt-1 text-[11px] text-emerald-700">↻ Otomatis menampilkan RTL rapat sebelumnya yang belum selesai</p>
+                                            <p class="mt-1 text-[11px] text-brand-700">↻ Otomatis menampilkan RTL rapat sebelumnya yang belum selesai</p>
                                         @endif
                                         @error("agendas.$i.title") <p class="error">{{ $message }}</p> @enderror
                                     </div>
@@ -146,7 +146,7 @@
         <section class="card flex flex-col p-5 lg:col-span-2">
             <div class="mb-3 flex items-center justify-between">
                 <h2 class="font-semibold text-slate-800">Peserta Undangan</h2>
-                <span class="badge bg-emerald-100 text-emerald-700">{{ count($participantIds) }} dipilih</span>
+                <span class="badge bg-brand-100 text-brand-700">{{ count($participantIds) }} dipilih</span>
             </div>
             <input type="search" wire:model.live.debounce.300ms="participantSearch" class="input mb-3" placeholder="Cari nama atau jabatan…">
             <p class="mb-3 text-xs text-slate-500">Pimpinan rapat dan notulis otomatis menjadi peserta.</p>
@@ -156,12 +156,12 @@
                     <div wire:key="unit-{{ $unitName }}">
                         <div class="mb-1 flex items-center justify-between">
                             <p class="text-xs font-bold tracking-wide text-slate-500 uppercase">{{ $unitName }}</p>
-                            <button type="button" wire:click="toggleUnit({{ $unitIds[$unitName] ?? 'null' }})" class="text-xs font-semibold text-emerald-700 hover:underline">Pilih/batal semua</button>
+                            <button type="button" wire:click="toggleUnit({{ $unitIds[$unitName] ?? 'null' }})" class="text-xs font-semibold text-brand-700 hover:underline">Pilih/batal semua</button>
                         </div>
                         <div class="space-y-1">
                             @foreach ($members as $u)
                                 <label wire:key="u-{{ $u->id }}" class="flex cursor-pointer items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-slate-50">
-                                    <input type="checkbox" value="{{ $u->id }}" wire:model.live="participantIds" class="size-4 rounded border-slate-300 text-emerald-600">
+                                    <input type="checkbox" value="{{ $u->id }}" wire:model.live="participantIds" class="size-4 rounded border-slate-300 text-brand-600">
                                     <span class="min-w-0">
                                         <span class="block truncate text-sm text-slate-800">{{ $u->name }}</span>
                                         @if ($u->jabatan) <span class="block truncate text-xs text-slate-400">{{ $u->jabatan }}</span> @endif

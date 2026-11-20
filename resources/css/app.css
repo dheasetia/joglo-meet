@@ -7,6 +7,29 @@
 
 @theme {
     --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+
+    /* Warna identitas jogloquran.com: plum lambang (#592635) & merah marun situs (#ae152d) */
+    --color-brand-50: #fbf3f5;
+    --color-brand-100: #f6e4e8;
+    --color-brand-200: #edc8d0;
+    --color-brand-300: #dea0ad;
+    --color-brand-400: #c86a7e;
+    --color-brand-500: #b53a52;
+    --color-brand-600: #ae152d;
+    --color-brand-700: #8f1a2f;
+    --color-brand-800: #592635;
+    --color-brand-900: #4a2030;
+    --color-brand-950: #2d1119;
+
+    /* Emas tulisan & garis lambang (#fbe86f) */
+    --color-gold-50: #fffbea;
+    --color-gold-100: #fff4c2;
+    --color-gold-200: #ffee99;
+    --color-gold-300: #fbe86f;
+    --color-gold-400: #f2d35a;
+    --color-gold-500: #dcb73a;
+    --color-gold-600: #b8922a;
+    --color-gold-700: #8f6e1f;
 }
 
 [x-cloak] { display: none !important; }
@@ -14,14 +37,14 @@
 @layer components {
     .card { @apply rounded-2xl border border-slate-200/80 bg-white shadow-sm; }
     .label { @apply mb-1 block text-sm font-medium text-slate-700; }
-    .input { @apply block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500; }
-    .btn-primary { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500; }
+    .input { @apply block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500; }
+    .btn-primary { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500; }
     .btn-secondary { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus:ring-slate-400; }
     .btn-danger { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500; }
     .btn-ghost { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-3.5 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 text-slate-600 hover:bg-slate-100 focus:ring-slate-300; }
     .btn-sm { @apply px-2.5 py-1.5 text-xs rounded-lg; }
     .badge { @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold whitespace-nowrap; }
     .error { @apply mt-1 text-xs text-rose-600; }
-    .nav-link { @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-emerald-50/80 transition hover:bg-white/10 hover:text-white; }
-    .nav-link-active { @apply bg-white/15 text-white; }
+    .nav-link { @apply flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-brand-50/80 transition hover:bg-white/10 hover:text-white; }
+    .nav-link-active { @apply bg-white/15 text-gold-300 shadow-[inset_3px_0_0_var(--color-gold-300)]; }
 }

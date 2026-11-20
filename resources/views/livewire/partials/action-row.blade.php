@@ -4,7 +4,7 @@
     <div class="min-w-0 flex-1">
         <p class="text-sm font-medium text-slate-800">{{ $item->title }}</p>
         <p class="truncate text-xs text-slate-500">
-            {{ $item->pic->name }} · <a href="{{ route('meetings.show', $item->meeting_id) }}" wire:navigate class="hover:text-emerald-700 hover:underline">{{ $item->meeting->title }}</a>
+            {{ $item->pic->name }} · <a href="{{ route('meetings.show', $item->meeting_id) }}" wire:navigate class="hover:text-brand-700 hover:underline">{{ $item->meeting->title }}</a>
         </p>
     </div>
     <div class="shrink-0 text-right">

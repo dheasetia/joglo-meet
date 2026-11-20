@@ -6,7 +6,7 @@
             <div class="mb-4">
                 <p class="text-xs text-slate-500">{{ $updating->meeting->title }} · deadline {{ $updating->due_date->translatedFormat('d M Y') }}</p>
                 <h3 class="text-lg font-semibold text-slate-900">{{ $updating->title }}</h3>
-                @if ($updating->success_indicator) <p class="text-xs text-emerald-700">Indikator selesai: {{ $updating->success_indicator }}</p> @endif
+                @if ($updating->success_indicator) <p class="text-xs text-brand-700">Indikator selesai: {{ $updating->success_indicator }}</p> @endif
             </div>
 
             <div class="space-y-4" x-data="{ p: $wire.entangle('progressForm.progress') }">
@@ -17,14 +17,14 @@
                             <label class="cursor-pointer">
                                 <input type="radio" wire:model="progressForm.status" value="{{ $s->value }}" class="peer sr-only"
                                        @if ($s === \App\Enums\ActionStatus::Selesai) x-on:change="p = 100" @endif>
-                                <span class="block rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 peer-checked:border-emerald-500 peer-checked:bg-emerald-50 peer-checked:text-emerald-700">{{ $s->label() }}</span>
+                                <span class="block rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 peer-checked:border-brand-500 peer-checked:bg-brand-50 peer-checked:text-brand-700">{{ $s->label() }}</span>
                             </label>
                         @endforeach
                     </div>
                 </div>
                 <div>
                     <label class="label">Progres: <span x-text="p + '%'"></span></label>
-                    <input type="range" min="0" max="100" step="5" x-model.number="p" class="w-full accent-emerald-600">
+                    <input type="range" min="0" max="100" step="5" x-model.number="p" class="w-full accent-brand-600">
                     @error('progressForm.progress') <p class="error">{{ $message }}</p> @enderror
                 </div>
                 <div>

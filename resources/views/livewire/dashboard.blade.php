@@ -32,7 +32,7 @@
             <section class="card p-5">
                 <div class="mb-2 flex items-center justify-between">
                     <h2 class="font-semibold text-rose-700">RTL Terlambat</h2>
-                    <a href="{{ route('actions.index', ['filter' => 'terlambat']) }}" wire:navigate class="text-xs font-semibold text-emerald-700 hover:underline">Lihat semua</a>
+                    <a href="{{ route('actions.index', ['filter' => 'terlambat']) }}" wire:navigate class="text-xs font-semibold text-brand-700 hover:underline">Lihat semua</a>
                 </div>
                 <div class="divide-y divide-slate-100">
                     @forelse ($overdue as $item)
@@ -56,9 +56,9 @@
         </div>
 
         <div class="space-y-6">
-            <a href="{{ route('actions.mine') }}" wire:navigate class="card flex items-center justify-between bg-gradient-to-br from-emerald-600 to-emerald-800 p-5 text-white">
+            <a href="{{ route('actions.mine') }}" wire:navigate class="card flex items-center justify-between bg-gradient-to-br from-brand-600 to-brand-800 p-5 text-white">
                 <div>
-                    <p class="text-sm text-emerald-100">Tugas saya yang belum selesai</p>
+                    <p class="text-sm text-brand-100">Tugas saya yang belum selesai</p>
                     <p class="text-3xl font-bold">{{ $myTasks }}</p>
                 </div>
                 <svg class="size-8 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
@@ -69,9 +69,9 @@
                 <div class="space-y-3">
                     @forelse ($upcoming as $m)
                         <a href="{{ route('meetings.show', $m) }}" wire:navigate class="flex gap-3 rounded-xl p-2 hover:bg-slate-50">
-                            <div class="w-12 shrink-0 rounded-xl bg-emerald-50 py-1.5 text-center">
-                                <p class="text-[10px] font-semibold uppercase text-emerald-700">{{ $m->date->translatedFormat('M') }}</p>
-                                <p class="text-lg leading-none font-bold text-emerald-800">{{ $m->date->format('d') }}</p>
+                            <div class="w-12 shrink-0 rounded-xl bg-brand-50 py-1.5 text-center">
+                                <p class="text-[10px] font-semibold uppercase text-brand-700">{{ $m->date->translatedFormat('M') }}</p>
+                                <p class="text-lg leading-none font-bold text-brand-800">{{ $m->date->format('d') }}</p>
                             </div>
                             <div class="min-w-0">
                                 <p class="truncate text-sm font-semibold text-slate-800">{{ $m->title }}</p>
