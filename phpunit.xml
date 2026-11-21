@@ -21,6 +21,10 @@
         <!-- Tes lampiran membuat foto palsu 12 MP (4000×3000) dengan GD -->
         <ini name="memory_limit" value="512M"/>
         <env name="APP_ENV" value="testing"/>
+        <!-- Tes TIDAK PERNAH mengirim WhatsApp sungguhan, apa pun isi .env -->
+        <env name="WHATSAPP_DRIVER" value="log" force="true"/>
+        <env name="FONNTE_TOKEN" value="" force="true"/>
+        <env name="APP_URL" value="http://localhost" force="true"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="BROADCAST_CONNECTION" value="null"/>

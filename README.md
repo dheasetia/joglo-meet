@@ -4,6 +4,8 @@ Aplikasi pencatatan rapat untuk Pondok Pesantren Joglo Qur'an. Isinya agenda, pe
 
 **Stack:** Laravel 13 · Livewire 4 (halaman interaktif tanpa reload) · Filament 5 (data master di `/admin`) · Tailwind CSS 4 · Vite 8 · MySQL.
 
+> **Deploy ke server (shared hosting / cPanel):** lihat [docs/deploy-shared-hosting.md](docs/deploy-shared-hosting.md).
+
 ## 1. Instalasi
 
 Butuh PHP 8.3+, Composer, Node.js 20+, dan MySQL/MariaDB.

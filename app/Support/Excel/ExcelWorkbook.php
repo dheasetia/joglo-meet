@@ -16,6 +16,7 @@ use OpenSpout\Writer\XLSX\Entity\SheetView;
 use OpenSpout\Writer\XLSX\Options;
 use OpenSpout\Writer\XLSX\Properties;
 use OpenSpout\Writer\XLSX\Writer;
+use Illuminate\Support\Facades\File;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
@@ -54,7 +55,11 @@ class ExcelWorkbook
             lastModifiedBy: config('rapat.institution'),
         ));
 
-        $this->path = tempnam(sys_get_temp_dir(), 'rapat-xlsx-');
+        // Berkas sementara di dalam folder aplikasi: sebagian shared hosting membatasi akses /tmp (open_basedir)
+        $tempFolder = storage_path('app/tmp');
+        File::ensureDirectoryExists($tempFolder);
+        $this->options->setTempFolder($tempFolder);
+        $this->path = tempnam($tempFolder, 'rapat-xlsx-');
         $this->writer = new Writer($this->options);
         $this->writer->openToFile($this->path);
 
