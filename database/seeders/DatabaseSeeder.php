@@ -31,22 +31,23 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        $admin = $make('Administrator', 'admin@jogloquran.test', Role::SuperAdmin, 'Pimpinan', 'Admin Sistem');
-        $mudir = $make('Pimpinan Pondok', 'pimpinan@jogloquran.test', Role::Pimpinan, 'Pimpinan', 'Mudir');
-        $notulis = $make('Ust. Ahmad Fauzi', 'notulis@jogloquran.test', Role::Notulis, 'Pimpinan', 'Sekretaris Pondok');
-        $kepSma = $make('Ust. Hasan Basri', 'kepala.sma@jogloquran.test', Role::KepalaUnit, 'SMA', 'Kepala SMA');
-        $kepSmp = $make('Ust. Yusuf Hidayat', 'kepala.smp@jogloquran.test', Role::KepalaUnit, 'SMP', 'Kepala SMP');
-        $tahfizh = $make('Ust. Abdullah Faqih', 'tahfizh@jogloquran.test', Role::KepalaUnit, 'Tahfizh', 'Koordinator Tahfizh');
-        $pengasuhan = $make('Ust. Umar Said', 'pengasuhan@jogloquran.test', Role::KepalaUnit, 'Pengasuhan', 'Kepala Pengasuhan');
+        $admin = $make('Administrator', 'admin@jogloquran.com', Role::SuperAdmin, 'Pimpinan', 'Admin Sistem');
+        $mudir = $make('Pimpinan Pondok', 'pimpinan@jogloquran.com', Role::Pimpinan, 'Pimpinan', 'Mudir');
+        $notulisSMA = $make('Fauzan Ryan Abdullah', 'fauzan@jogloquran.com', Role::Notulis, 'Pimpinan', 'Sekretaris Pondok');
+        $notulisSMP = $make('Irfansyah Ihsan', 'irfansyah@jogloquran.com', Role::Notulis, 'Pimpinan', 'Sekretaris Pondok');
+        $kepSma = $make('Ust. Irfan Fachrurrazi', 'irfan@jogloquran.com', Role::KepalaUnit, 'SMA', 'Kepala SMA');
+        $kepSmp = $make('Ust. Muhammad Azzam', 'azzam@jogloquran.com', Role::KepalaUnit, 'SMP', 'Kepala SMP');
+        $tahfizh = $make('Ust. Pukat Amigura', 'pukat@jogloquran.com', Role::KepalaUnit, 'Tahfizh', 'Koordinator Tahfizh');
+        $pengasuhan = $make('Ust. Sigit Trihatmojo', 'sigit@jogloquran.com', Role::KepalaUnit, 'Pengasuhan', 'Kepala Pengasuhan');
 
         $asatidz = collect([
-            ['Ust. Ridwan', 'SMA', 'Guru Fiqih'],
-            ['Ust. Salman', 'SMA', 'Guru Bahasa Arab'],
-            ['Ust. Ilham', 'SMA', 'Guru Matematika'],
-            ['Usth. Aisyah', 'SMA', 'Guru Biologi'],
-            ['Ust. Bilal', 'Tahfizh', 'Muhaffizh'],
-            ['Ust. Zaid', 'Pengasuhan', 'Musyrif'],
-        ])->map(fn ($a, $i) => $make($a[0], 'ustadz'.($i + 1).'@jogloquran.test', Role::Peserta, $a[1], $a[2]));
+            ['Ust. Rasyid Ridha', 'SMA', 'Guru Fiqih'],
+            ['Ust. Hasan Amin', 'SMA', 'Guru Bahasa Arab'],
+            ['Ust. Fathurrahman', 'SMA', 'Guru Matematika'],
+            ['Usth. Ali', 'SMA', 'Guru Bahasa Inggris'],
+            ['Ust. Irfansyah', 'Tahfizh', 'Muhaffizh'],
+            ['Ust. Ashim', 'Pengasuhan', 'Musyrif'],
+        ])->map(fn ($a, $i) => $make($a[0], 'ustadz'.($i + 1).'@jogloquran.com', Role::Peserta, $a[1], $a[2]));
 
         // ---------- Jenis rapat ----------
         $rapim = MeetingType::create([
@@ -54,40 +55,79 @@ class DatabaseSeeder extends Seeder
             'unit_id' => $units['Pimpinan']->id,
             'default_agendas' => ['Laporan kepala unit', 'Pembahasan program pekan depan'],
         ]);
-        $asatidzType = MeetingType::create([
+        $asatidzSMAType = MeetingType::create([
             'name' => 'Rapat Asatidz SMA Mingguan',
             'unit_id' => $units['SMA']->id,
             'default_agendas' => ['Evaluasi KBM pekan ini', 'Perkembangan santri', 'Agenda pekan depan'],
         ]);
+        $asatidzSMPType = MeetingType::create([
+            'name' => 'Rapat Asatidz SMP Mingguan',
+            'unit_id' => $units['SMP']->id,
+            'default_agendas' => ['Evaluasi KBM pekan ini', 'Perkembangan santri', 'Agenda pekan depan'],
+        ]);
+
         MeetingType::create([
             'name' => 'Rapat Pengasuhan / Musyrif',
             'unit_id' => $units['Pengasuhan']->id,
             'default_agendas' => ['Evaluasi kedisiplinan santri', 'Kasus santri yang perlu penanganan'],
         ]);
+        MeetingType::create(['name' => 'Rapat Ketahfizhan', 'unit_id' => $units['SMP']->id]);
         MeetingType::create(['name' => 'Rapat Yayasan', 'unit_id' => $units['Yayasan']->id]);
 
         // ---------- Contoh rapat yang sudah disahkan ----------
         $past = Meeting::create([
-            'meeting_type_id' => $asatidzType->id,
+            'meeting_type_id' => $asatidzSMAType->id,
             'unit_id' => $units['SMA']->id,
             'title' => 'Rapat Asatidz SMA Pekan II',
             'date' => today()->subDays(7),
             'start_time' => '13:00',
             'end_time' => '14:30',
             'location' => 'Ruang Guru SMA',
-            'chair_id' => $kepSma->id,
-            'secretary_id' => $notulis->id,
+            'chair_id' => $mudir->id,
+            'secretary_id' => $notulisSMA->id,
             'status' => MeetingStatus::Disahkan,
             'started_at' => today()->subDays(7)->setTime(13, 5),
             'ended_at' => today()->subDays(7)->setTime(14, 35),
             'approved_at' => today()->subDays(6)->setTime(8, 0),
             'approved_by' => $kepSma->id,
-            'created_by' => $notulis->id,
+            'created_by' => $notulisSMA->id,
             'notes' => 'Rapat ditutup dengan doa kafaratul majelis.',
         ]);
 
-        $people = collect([$kepSma, $notulis, $tahfizh])->merge($asatidz->take(4));
-        $statuses = [AttendanceStatus::Hadir, AttendanceStatus::Hadir, AttendanceStatus::Hadir, AttendanceStatus::Hadir,
+        $pastSmp = Meeting::create([
+            'meeting_type_id' => $asatidzSMPType->id,
+            'unit_id' => $units['SMP']->id,
+            'title' => 'Rapat Asatidz SMP Pekan II',
+            'date' => today()->subDays(7),
+            'start_time' => '13:00',
+            'end_time' => '14:30',
+            'location' => 'sekretariat',
+            'chair_id' => $mudir->id,
+            'secretary_id' => $notulisSMP->id,
+            'status' => MeetingStatus::Disahkan,
+            'started_at' => today()->subDays(7)->setTime(13, 5),
+            'ended_at' => today()->subDays(7)->setTime(14, 35),
+            'approved_at' => today()->subDays(6)->setTime(8, 0),
+            'approved_by' => $kepSmp->id,
+            'created_by' => $notulisSMP->id,
+            'notes' => 'Rapat ditutup dengan doa kafaratul majelis.',
+        ]);
+
+        // Peserta & agenda rapat SMP (tanpa keputusan/RTL contoh)
+        foreach ([$mudir, $kepSmp, $notulisSMP] as $user) {
+            $pastSmp->participants()->create([
+                'user_id' => $user->id,
+                'attendance_status' => AttendanceStatus::Hadir,
+                'checked_in_at' => $pastSmp->started_at,
+            ]);
+        }
+        foreach (['Pembukaan, tilawah & doa', 'Evaluasi RTL rapat sebelumnya', 'Evaluasi KBM pekan ini', 'Perkembangan santri', 'Agenda pekan depan', 'Lain-lain', 'Penutup & doa kafaratul majelis'] as $i => $title) {
+            $pastSmp->agendas()->create(['sort_order' => $i + 1, 'title' => $title, 'is_carry_over' => $i === 1]);
+        }
+
+        // ---------- Detail rapat SMA Pekan II: peserta, agenda, keputusan & RTL ----------
+        $people = collect([$kepSma, $notulisSMP, $notulisSMA, $tahfizh])->merge($asatidz->take(4));
+        $statuses = [AttendanceStatus::Hadir, AttendanceStatus::Hadir, AttendanceStatus::Hadir, AttendanceStatus::Hadir, AttendanceStatus::Hadir,
             AttendanceStatus::Terlambat, AttendanceStatus::Izin, AttendanceStatus::Hadir];
         foreach ($people->values() as $i => $user) {
             $past->participants()->create([
@@ -128,7 +168,7 @@ class DatabaseSeeder extends Seeder
 
         // ---------- Rapat pekan ini (terjadwal) ----------
         $next = Meeting::create([
-            'meeting_type_id' => $asatidzType->id,
+            'meeting_type_id' => $asatidzSMAType->id,
             'unit_id' => $units['SMA']->id,
             'title' => 'Rapat Asatidz SMA Pekan III',
             'date' => today()->addDay(),
@@ -136,10 +176,11 @@ class DatabaseSeeder extends Seeder
             'end_time' => '14:30',
             'location' => 'Ruang Guru SMA',
             'chair_id' => $kepSma->id,
-            'secretary_id' => $notulis->id,
+            'secretary_id' => $notulisSMA->id,
             'status' => MeetingStatus::Terjadwal,
-            'created_by' => $notulis->id,
+            'created_by' => $notulisSMA->id,
         ]);
+
         foreach ($people as $user) {
             $next->participants()->create(['user_id' => $user->id]);
         }
@@ -156,12 +197,12 @@ class DatabaseSeeder extends Seeder
             'start_time' => '08:00',
             'location' => 'Kantor Pimpinan',
             'chair_id' => $mudir->id,
-            'secretary_id' => $notulis->id,
+            'secretary_id' => $notulisSMA->id,
             'confidentiality' => 'rahasia',
             'status' => MeetingStatus::Terjadwal,
             'created_by' => $mudir->id,
         ]);
-        foreach ([$mudir, $notulis, $kepSma, $kepSmp, $tahfizh, $pengasuhan] as $user) {
+        foreach ([$mudir, $notulisSMA, $kepSma, $tahfizh, $pengasuhan] as $user) {
             $rp->participants()->create(['user_id' => $user->id]);
         }
         foreach (['Pembukaan, tilawah & doa', 'Evaluasi RTL rapat sebelumnya', 'Laporan kepala unit', 'Pembahasan program pekan depan', 'Lain-lain', 'Penutup & doa kafaratul majelis'] as $i => $title) {

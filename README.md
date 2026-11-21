@@ -55,12 +55,15 @@ Buka `http://127.0.0.1:8000`.
 
 | Email | Peran |
 |---|---|
-| admin@jogloquran.test | Super Admin |
-| pimpinan@jogloquran.test | Pimpinan (Mudir) |
-| notulis@jogloquran.test | Notulis / Sekretaris |
-| kepala.sma@jogloquran.test | Kepala Unit SMA |
-| tahfizh@jogloquran.test | Koordinator Tahfizh |
-| ustadz1@jogloquran.test | Peserta |
+| admin@jogloquran.com | Super Admin |
+| pimpinan@jogloquran.com | Pimpinan (Mudir) |
+| fauzan@jogloquran.com | Notulis / Sekretaris (SMA) |
+| irfansyah@jogloquran.com | Notulis / Sekretaris (SMP) |
+| irfan@jogloquran.com | Kepala Unit SMA |
+| azzam@jogloquran.com | Kepala Unit SMP |
+| pukat@jogloquran.com | Koordinator Tahfizh |
+| sigit@jogloquran.com | Kepala Pengasuhan |
+| ustadz1@jogloquran.com … ustadz6@jogloquran.com | Peserta |
 
 **Segera ganti kata sandi** sebelum dipakai sungguhan. Kata sandi bisa diganti di `/admin` → Pengguna.
 

@@ -24,7 +24,7 @@ class MeetingFlowTest extends TestCase
 
     public function test_all_pages_render_for_pimpinan(): void
     {
-        $user = User::where('email', 'pimpinan@jogloquran.test')->first();
+        $user = User::where('email', 'pimpinan@jogloquran.com')->first();
         $meeting = Meeting::first();
 
         $this->actingAs($user);
@@ -42,8 +42,8 @@ class MeetingFlowTest extends TestCase
 
     public function test_full_meeting_flow(): void
     {
-        $notulis = User::where('email', 'notulis@jogloquran.test')->first();
-        $pic = User::where('email', 'tahfizh@jogloquran.test')->first();
+        $notulis = User::where('email', 'fauzan@jogloquran.com')->first();
+        $pic = User::where('email', 'pukat@jogloquran.com')->first();
         $this->actingAs($notulis);
 
         // 1. Buat rapat
@@ -113,7 +113,7 @@ class MeetingFlowTest extends TestCase
 
     public function test_participant_cannot_edit_or_see_confidential_meeting(): void
     {
-        $peserta = User::where('email', 'ustadz1@jogloquran.test')->first();
+        $peserta = User::where('email', 'ustadz1@jogloquran.com')->first();
         $rahasia = Meeting::where('confidentiality', 'rahasia')->first();
 
         $this->actingAs($peserta)->get("/rapat/{$rahasia->id}")->assertForbidden();
@@ -122,7 +122,7 @@ class MeetingFlowTest extends TestCase
 
     public function test_action_board_filters(): void
     {
-        $this->actingAs(User::where('email', 'pimpinan@jogloquran.test')->first());
+        $this->actingAs(User::where('email', 'pimpinan@jogloquran.com')->first());
 
         Livewire::test(ActionBoard::class)
             ->set('filter', 'terlambat')

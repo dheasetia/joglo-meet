@@ -36,7 +36,7 @@ class InteractionSmokeTest extends TestCase
 
     public function test_meeting_index_filters_and_search(): void
     {
-        $this->actingAs($this->user('pimpinan@jogloquran.test'));
+        $this->actingAs($this->user('pimpinan@jogloquran.com'));
 
         Livewire::test(MeetingIndex::class)
             ->set('search', 'PTS') // cari di isi pembahasan
@@ -50,7 +50,7 @@ class InteractionSmokeTest extends TestCase
 
     public function test_meeting_form_template_units_and_agenda_ordering(): void
     {
-        $this->actingAs($this->user('notulis@jogloquran.test'));
+        $this->actingAs($this->user('fauzan@jogloquran.com'));
         $type = MeetingType::where('name', 'Rapat Pimpinan')->first();
 
         $form = Livewire::test(MeetingForm::class)
@@ -84,7 +84,7 @@ class InteractionSmokeTest extends TestCase
 
     public function test_meeting_room_interactions_and_carry_over(): void
     {
-        $this->actingAs($this->user('notulis@jogloquran.test'));
+        $this->actingAs($this->user('fauzan@jogloquran.com'));
         $meeting = Meeting::where('title', 'Rapat Asatidz SMA Pekan III')->first();
         $carryAgenda = $meeting->agendas()->where('is_carry_over', true)->first();
         $open = ActionItem::where('title', 'like', 'Koordinasi jadwal mandi%')->first();
@@ -126,7 +126,7 @@ class InteractionSmokeTest extends TestCase
 
         // Notulis tidak berhak mengesahkan; pimpinan rapat yang mengesahkan
         $room->call('endMeeting')->call('approve')->assertForbidden();
-        $this->actingAs($this->user('kepala.sma@jogloquran.test'));
+        $this->actingAs($this->user('irfan@jogloquran.com'));
         Livewire::test(MeetingRoom::class, ['meeting' => $meeting->fresh()])->call('approve');
         $this->assertSame(MeetingStatus::Disahkan, $meeting->fresh()->status);
         $this->get("/rapat/{$meeting->id}/cetak")->assertOk()->assertSee('Disahkan secara elektronik');
@@ -134,7 +134,7 @@ class InteractionSmokeTest extends TestCase
 
     public function test_locked_meeting_cannot_be_edited(): void
     {
-        $this->actingAs($this->user('notulis@jogloquran.test'));
+        $this->actingAs($this->user('fauzan@jogloquran.com'));
         $locked = Meeting::where('status', MeetingStatus::Disahkan->value)->first();
 
         Livewire::test(MeetingRoom::class, ['meeting' => $locked])
@@ -145,7 +145,7 @@ class InteractionSmokeTest extends TestCase
 
     public function test_action_board_kanban_and_update_modal(): void
     {
-        $this->actingAs($this->user('pimpinan@jogloquran.test'));
+        $this->actingAs($this->user('pimpinan@jogloquran.com'));
         $item = ActionItem::where('title', 'Menyusun jadwal pengawas PTS')->first();
 
         Livewire::test(ActionBoard::class)
@@ -163,21 +163,21 @@ class InteractionSmokeTest extends TestCase
 
     public function test_dashboard_and_report_with_filters(): void
     {
-        $this->actingAs($this->user('pimpinan@jogloquran.test'));
+        $this->actingAs($this->user('pimpinan@jogloquran.com'));
 
         Livewire::test(Dashboard::class)->assertSee('RTL Terlambat');
 
         Livewire::test(AttendanceReport::class)
             ->set('from', today()->subMonth()->format('Y-m-d'))
-            ->assertSee('Ust. Hasan Basri')
+            ->assertSee('Ust. Irfan Fachrurrazi')
             ->set('type', (string) MeetingType::where('name', 'Rapat Pimpinan')->value('id'))
             ->assertSee('Belum ada data kehadiran');
     }
 
     public function test_qr_self_check_in(): void
     {
-        $chair = $this->user('kepala.sma@jogloquran.test');
-        $peserta = $this->user('ustadz2@jogloquran.test');
+        $chair = $this->user('irfan@jogloquran.com');
+        $peserta = $this->user('ustadz2@jogloquran.com');
         $meeting = Meeting::create([
             'title' => 'Rapat Hari Ini',
             'date' => today(),
