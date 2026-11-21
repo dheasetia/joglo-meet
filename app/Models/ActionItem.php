@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Facades\DB;
 
 class ActionItem extends Model
@@ -56,6 +57,20 @@ class ActionItem extends Model
     public function updates(): HasMany
     {
         return $this->hasMany(ActionItemUpdate::class)->latest();
+    }
+
+    /** Semua bukti dari seluruh riwayat progres RTL ini. */
+    public function evidenceAttachments(): HasManyThrough
+    {
+        return $this->hasManyThrough(Attachment::class, ActionItemUpdate::class, 'action_item_id', 'attachable_id')
+            ->where('attachments.attachable_type', (new ActionItemUpdate)->getMorphClass())
+            ->oldest('attachments.id');
+    }
+
+    protected static function booted(): void
+    {
+        // Riwayat progres terhapus lewat cascade database; hapus dulu bukti & filenya
+        static::deleting(fn (ActionItem $item) => $item->evidenceAttachments()->get()->each->delete());
     }
 
     public function scopeOpen(Builder $query): Builder
@@ -111,9 +126,9 @@ class ActionItem extends Model
         return (bool) $this->loadMissing('meeting')->meeting?->canManage($user);
     }
 
-    public function recordProgress(User $user, int $progress, ActionStatus $status, ?string $note = null, ?int $meetingId = null): void
+    public function recordProgress(User $user, int $progress, ActionStatus $status, ?string $note = null, ?int $meetingId = null): ActionItemUpdate
     {
-        DB::transaction(function () use ($user, $progress, $status, $note, $meetingId) {
+        return DB::transaction(function () use ($user, $progress, $status, $note, $meetingId) {
             $progress = max(0, min(100, $progress));
 
             if ($status === ActionStatus::Selesai) {
@@ -128,7 +143,7 @@ class ActionItem extends Model
                 'completed_at' => $status === ActionStatus::Selesai ? ($this->completed_at ?? now()) : null,
             ]);
 
-            $this->updates()->create([
+            return $this->updates()->create([
                 'user_id' => $user->id,
                 'meeting_id' => $meetingId,
                 'progress' => $progress,

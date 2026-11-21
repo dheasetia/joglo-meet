@@ -11,6 +11,7 @@
     <meta name="theme-color" content="#592635">
     @fonts
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @include('components.layouts.upload-helper')
 </head>
 <body class="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased">
 @php

@@ -6,6 +6,7 @@ use App\Models\Concerns\RecordsActivity;
 use App\Enums\ActionStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class ActionItemUpdate extends Model
 {
@@ -31,6 +32,12 @@ class ActionItemUpdate extends Model
     public function meeting(): BelongsTo
     {
         return $this->belongsTo(Meeting::class);
+    }
+
+    /** Bukti progres (foto/dokumen). */
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(Attachment::class, 'attachable')->oldest('id');
     }
 
     // ---------- Log aktivitas ----------

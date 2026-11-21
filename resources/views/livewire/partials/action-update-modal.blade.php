@@ -31,6 +31,36 @@
                     <label class="label">Catatan / bukti</label>
                     <textarea wire:model="progressForm.note" rows="3" class="input" placeholder="Apa yang sudah dikerjakan, kendala, atau tautan bukti…"></textarea>
                 </div>
+                <div x-data="rapatUploads({ property: 'evidenceUploads', append: true })">
+                    <div class="mb-1 flex items-center justify-between gap-2">
+                        <label class="label mb-0">Bukti <span class="font-normal text-slate-400">(opsional)</span></label>
+                        <input type="file" multiple class="sr-only" x-ref="bukti"
+                               x-on:change="pick($event.target.files); $event.target.value = ''"
+                               accept=".{{ implode(',.', config('rapat.attachments.mimes')) }}">
+                        <x-btn variant="secondary" size="sm" icon="paper-clip" x-on:click="$refs.bukti.click()" x-bind:disabled="uploading">Pilih berkas</x-btn>
+                    </div>
+                    <div x-show="uploading" x-cloak class="mb-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+                        <div class="h-full rounded-full bg-emerald-600 transition-all" :style="`width: ${progress}%`"></div>
+                    </div>
+                    @if ($evidenceUploads)
+                        <ul class="space-y-1">
+                            @foreach ($evidenceUploads as $i => $file)
+                                <li wire:key="bukti-{{ $i }}-{{ $file->getFilename() }}" class="flex items-center gap-2 rounded-lg bg-slate-50 px-2 py-1 text-xs text-slate-600">
+                                    <x-heroicon-o-paper-clip class="size-3.5 shrink-0 text-slate-400" />
+                                    <span class="min-w-0 flex-1 truncate">{{ $file->getClientOriginalName() }}</span>
+                                    <span class="shrink-0 text-slate-400">{{ \App\Models\Attachment::formatBytes($file->getSize()) }}</span>
+                                    <x-btn variant="danger" size="sm" icon="x-mark" wire:click="removeEvidence({{ $i }})" title="Batalkan berkas ini" aria-label="Batalkan {{ $file->getClientOriginalName() }}" />
+                                </li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <p class="text-xs text-slate-400">Foto hasil kerja atau dokumen pendukung. {{ \App\Support\AttachmentStorage::hint() }}</p>
+                    @endif
+                    <p x-show="clientError" x-text="clientError" x-cloak class="error"></p>
+                    @foreach ($errors->get('evidenceUploads*') as $messages)
+                        @foreach ((array) $messages as $message) <p class="error">{{ $message }}</p> @endforeach
+                    @endforeach
+                </div>
             </div>
 
             @if ($updating->updates->isNotEmpty())
@@ -42,6 +72,7 @@
                                 <span class="font-semibold">{{ $u->created_at->translatedFormat('d M H:i') }}</span>
                                 · {{ $u->user?->name }} · {{ $u->status->label() }} {{ $u->progress }}%
                                 @if ($u->note) <br><span class="text-slate-500">{{ $u->note }}</span> @endif
+                                @include('livewire.partials.evidence-links', ['files' => $u->attachments])
                             </li>
                         @endforeach
                     </ul>
@@ -50,7 +81,7 @@
 
             <div class="mt-5 flex justify-end gap-2">
                 <x-btn variant="warning" icon="arrow-uturn-left" wire:click="closeUpdate">Batal</x-btn>
-                <x-btn icon="check" wire:click="saveUpdate">Simpan Progres</x-btn>
+                <x-btn icon="check" wire:click="saveUpdate" wire:loading.attr="disabled" wire:target="evidenceUploads,saveUpdate">Simpan Progres</x-btn>
             </div>
         </div>
     </div>

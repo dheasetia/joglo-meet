@@ -167,6 +167,7 @@ class Meeting extends Model
             ->with([
                 'pic',
                 'meeting',
+                'evidenceAttachments',
                 'updates' => fn ($u) => $u->where('meeting_id', $this->id)->with('user'),
             ])
             ->where('meeting_id', '!=', $this->id)

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\MeetingPrintController;
@@ -29,6 +30,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/rapat/{meeting}/cetak', MeetingPrintController::class)->whereNumber('meeting')->name('meetings.print');
 
     Route::get('/hadir/{token}', CheckInController::class)->name('checkin');
+
+    Route::get('/lampiran/{attachment}', AttachmentController::class)->whereNumber('attachment')->name('attachments.show');
 
     Route::get('/rtl', ActionBoard::class)->name('actions.index');
     Route::get('/tugas-saya', MyTasks::class)->name('actions.mine');

@@ -9,14 +9,18 @@ use App\Enums\Priority;
 use App\Livewire\Concerns\IndonesianValidation;
 use App\Models\ActionItem;
 use App\Models\Agenda;
+use App\Models\Attachment;
 use App\Models\Decision;
 use App\Models\Meeting;
 use App\Models\MeetingParticipant;
 use App\Models\User;
+use App\Support\AttachmentStorage;
 use App\Support\MeetingActivity;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 /**
  * Ruang Rapat: notulen langsung, presensi, keputusan, RTL & evaluasi RTL sebelumnya.
@@ -25,7 +29,7 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class MeetingRoom extends Component
 {
-    use IndonesianValidation;
+    use IndonesianValidation, WithFileUploads;
 
     public Meeting $meeting;
 
@@ -54,6 +58,9 @@ class MeetingRoom extends Component
     public string $guestInfo = '';
 
     public ?string $savedAt = null;
+
+    /** Lampiran agenda yang sedang diunggah (langsung disimpan setelah selesai diunggah). */
+    public array $agendaUploads = [];
 
     public function mount(Meeting $meeting): void
     {
@@ -321,6 +328,61 @@ class MeetingRoom extends Component
         $this->dispatch('toast', message: 'Evaluasi RTL dicatat.');
     }
 
+    // ---------------------------------------------------------------- Lampiran agenda
+
+    /** Dipanggil otomatis setelah file selesai diunggah (pilih file atau seret ke area lampiran). */
+    public function updatedAgendaUploads(): void
+    {
+        $this->ensureCanEdit();
+
+        try {
+            $this->validateAgendaUploads();
+        } catch (ValidationException $e) {
+            // Buang berkas yang ditolak agar unggahan berikutnya tidak ikut gagal
+            $this->reset('agendaUploads');
+
+            throw $e;
+        }
+
+        $agenda = $this->agenda($this->activeAgendaId);
+        foreach ($this->agendaUploads as $file) {
+            AttachmentStorage::store($file, $agenda, $this->meeting->id, auth()->user());
+        }
+
+        $count = count($this->agendaUploads);
+        $this->reset('agendaUploads');
+        $this->dispatch('toast', message: $count.' lampiran diunggah.');
+    }
+
+    protected function validateAgendaUploads(): void
+    {
+        $this->validate([
+            'agendaUploads' => ['array', 'max:'.AttachmentStorage::maxFiles()],
+            'agendaUploads.*' => AttachmentStorage::rules(),
+        ], [
+            'agendaUploads.max' => 'Maksimal '.AttachmentStorage::maxFiles().' berkas sekali unggah.',
+            'agendaUploads.*.max' => 'Berkas :attribute melebihi '.round(config('rapat.attachments.max_kb') / 1024).' MB.',
+            'agendaUploads.*.mimes' => 'Berkas :attribute tidak didukung. Gunakan PDF, Word, Excel, PowerPoint, JPG, PNG, atau WEBP.',
+            'agendaUploads.*.uploaded' => 'Berkas :attribute gagal diunggah (mungkin terlalu besar).',
+        ], $this->uploadAttributeNames('agendaUploads'));
+    }
+
+    public function deleteAttachment(int $id): void
+    {
+        $attachment = Attachment::where('meeting_id', $this->meeting->id)->whereKey($id)->firstOrFail();
+        abort_unless($attachment->canDelete(auth()->user()), 403);
+        $attachment->delete();
+        $this->dispatch('toast', message: 'Lampiran dihapus.');
+    }
+
+    /** Nama berkas asli sebagai :attribute agar pesan galat menyebut berkas yang bermasalah. */
+    protected function uploadAttributeNames(string $property): array
+    {
+        return collect($this->{$property})
+            ->mapWithKeys(fn ($file, $i) => ["{$property}.{$i}" => '“'.(method_exists($file, 'getClientOriginalName') ? $file->getClientOriginalName() : 'berkas').'”'])
+            ->all();
+    }
+
     // ---------------------------------------------------------------- Presensi
 
     public function setAttendance(int $participantId, string $status): void
@@ -397,7 +459,7 @@ class MeetingRoom extends Component
         $this->meeting->refresh()->load(['type', 'unit', 'chair', 'secretary', 'approver']);
 
         $agendas = $this->meeting->agendas()
-            ->with(['presenter', 'decisions.actionItems.pic'])
+            ->with(['presenter', 'decisions.actionItems.pic', 'attachments.uploader'])
             ->get();
 
         $participants = MeetingParticipant::where('meeting_id', $this->meeting->id)
@@ -419,7 +481,7 @@ class MeetingRoom extends Component
             'participants' => $participants,
             'attendance' => $this->meeting->attendanceSummary(),
             'carryOver' => $carryOver,
-            'allActions' => $this->meeting->actionItems()->with(['pic', 'decision'])->orderBy('due_date')->get(),
+            'allActions' => $this->meeting->actionItems()->with(['pic', 'decision', 'evidenceAttachments'])->orderBy('due_date')->get(),
             'users' => User::where('is_active', true)->orderBy('name')->get(['id', 'name', 'jabatan']),
             'canEdit' => $this->canEdit(),
             'canManage' => $this->meeting->canManage($user),

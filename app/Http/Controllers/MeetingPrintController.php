@@ -16,6 +16,7 @@ class MeetingPrintController extends Controller
             'type', 'unit', 'chair', 'secretary', 'approver',
             'participants.user.unit',
             'agendas.presenter',
+            'agendas.attachments',
             'agendas.decisions.actionItems.pic',
             'actionItems.pic',
         ]);

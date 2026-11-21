@@ -104,7 +104,7 @@
                             <tr>
                                 <td>{{ $item->title }}<br><span class="muted" style="font-size:9.5pt">deadline {{ $item->due_date->translatedFormat('d M Y') }}</span></td>
                                 <td>{{ $item->pic->name }}</td>
-                                <td>{{ ($u?->status ?? $item->status)->label() }} ({{ $u?->progress ?? $item->progress }}%){{ $u?->note ? ' — '.$u->note : '' }}</td>
+                                <td>{{ ($u?->status ?? $item->status)->label() }} ({{ $u?->progress ?? $item->progress }}%){{ $u?->note ? ' — '.$u->note : '' }}@if ($item->evidenceAttachments->isNotEmpty())<br><span class="muted" style="font-size:9.5pt">Bukti: {{ $item->evidenceAttachments->pluck('original_name')->implode('; ') }}</span>@endif</td>
                             </tr>
                         @endforeach
                     </table>
@@ -115,6 +115,10 @@
                 <p class="discussion">{{ $a->discussion }}</p>
             @elseif (! $a->is_carry_over)
                 <p class="muted">—</p>
+            @endif
+
+            @if ($a->attachments->isNotEmpty())
+                <p class="muted" style="margin:0 0 6px">Lampiran: {{ $a->attachments->map(fn ($f) => $f->original_name.' ('.$f->humanSize().')')->implode('; ') }}</p>
             @endif
 
             @if ($a->decisions->isNotEmpty())

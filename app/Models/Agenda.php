@@ -6,6 +6,7 @@ use App\Models\Concerns\RecordsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Agenda extends Model
 {
@@ -33,6 +34,17 @@ class Agenda extends Model
     public function decisions(): HasMany
     {
         return $this->hasMany(Decision::class)->orderBy('sort_order');
+    }
+
+    public function attachments(): MorphMany
+    {
+        return $this->morphMany(Attachment::class, 'attachable')->oldest('id');
+    }
+
+    protected static function booted(): void
+    {
+        // Lampiran polimorfik tidak ikut cascade di database: hapus beserta filenya
+        static::deleting(fn (Agenda $agenda) => $agenda->attachments()->get()->each->delete());
     }
 
     // ---------- Log aktivitas ----------

@@ -125,7 +125,7 @@ resources/views/           Layout, halaman Livewire, cetak notulen
 | Fitur | Status |
 |---|---|
 | **Log aktivitas**: siapa mengubah apa & kapan (rapat, notulen, keputusan, RTL, presensi, data master, login). Tab *Riwayat* di Ruang Rapat (pengelola rapat) dan menu *Log Aktivitas* di `/admin`. Log > 365 hari dihapus otomatis. | ✅ Selesai |
-| Lampiran berkas/foto pada agenda dan bukti RTL | ⏳ |
+| **Lampiran berkas/foto**: di setiap agenda (Ruang Rapat, bisa seret-lepas) dan bukti pada pembaruan progres RTL. File privat dengan cek hak akses, maks. 10 MB, foto diperkecil otomatis ke 1920 px. | ✅ Selesai |
 | Ekspor Excel (RTL, rekap kehadiran) | ⏳ |
 | Tanda tangan digital QR pada notulen yang disahkan | ⏳ |
 | Rapat berulang otomatis | ⏳ |
@@ -142,3 +142,13 @@ Tugas terjadwal (pembersihan log, dan nanti rapat berulang & notifikasi WhatsApp
 ```
 
 Daftar tugas terjadwal: `php artisan schedule:list`.
+
+## 9. Batas unggah lampiran
+
+Lampiran maksimal **10 MB per file** (`config/rapat.php` → `attachments`). Server harus menerima unggahan sebesar itu:
+
+- **Shared hosting (cPanel):** `public/.user.ini` sudah berisi `upload_max_filesize = 12M` dan `post_max_size = 14M`. Bila hosting mengabaikannya, atur nilai yang sama di *cPanel → MultiPHP INI Editor*.
+- **Laravel Herd (lokal):** *Herd → Settings → PHP → Max file upload size* (mis. 12 MB). Bawaan Herd 2 MB.
+
+File tersimpan di `storage/app/private/lampiran/` (tidak bisa diakses langsung dari web) — sertakan folder ini dalam cadangan (backup).
+

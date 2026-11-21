@@ -65,6 +65,8 @@ class ActivityLog extends Activity
         'role' => 'Peran',
         'is_active' => 'Aktif',
         'default_agendas' => 'Template agenda',
+        'original_name' => 'Berkas',
+        'size' => 'Ukuran',
     ];
 
     protected const USER_FIELDS = ['chair_id', 'secretary_id', 'presenter_id', 'pic_id', 'user_id'];
@@ -147,6 +149,7 @@ class ActivityLog extends Activity
             $field === 'confidentiality' => $value === 'rahasia' ? 'Rahasia' : 'Biasa',
             $field === 'is_active' => $value ? 'Ya' : 'Tidak',
             $field === 'progress' => $value.'%',
+            $field === 'size' => Attachment::formatBytes((int) $value),
             in_array($field, self::USER_FIELDS, true) => self::nameFor('users', $value),
             $field === 'unit_id' => self::nameFor('units', $value),
             $field === 'meeting_type_id' => self::nameFor('meeting_types', $value),

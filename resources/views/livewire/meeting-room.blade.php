@@ -88,6 +88,7 @@
                                         @if ($a->is_carry_over) <span>↻ {{ $carryOver->count() }} RTL</span> @endif
                                         @if (filled($discussions[$a->id] ?? null)) <span>✎ dicatat</span> @endif
                                         @if ($dc) <span>{{ $dc }} keputusan</span> @endif
+                                        @if ($a->attachments->isNotEmpty()) <span>{{ $a->attachments->count() }} lampiran</span> @endif
                                     </span>
                                 </span>
                             </button>
@@ -120,6 +121,7 @@
                                             <div class="min-w-0">
                                                 <p class="text-sm font-medium text-slate-800">{{ $item->title }}</p>
                                                 <p class="text-xs text-slate-500">PIC: {{ $item->pic->name }} · Deadline {{ $item->due_date->translatedFormat('d M Y') }} · dari “{{ $item->meeting->title }}”</p>
+                                                @include('livewire.partials.evidence-links', ['files' => $item->evidenceAttachments])
                                             </div>
                                             <div class="flex items-center gap-2">
                                                 <span class="badge {{ $item->status->badge() }}">{{ $item->status->label() }} · {{ $item->progress }}%</span>
@@ -157,6 +159,8 @@
                     @else
                         <div class="min-h-[4rem] rounded-xl bg-slate-50 p-3 text-sm leading-relaxed whitespace-pre-line text-slate-700">{{ $discussions[$activeAgenda->id] ?? '' ?: '— Tidak ada catatan —' }}</div>
                     @endif
+
+                    @include('livewire.partials.agenda-attachments')
                 </div>
 
                 {{-- Keputusan & RTL --}}
@@ -359,6 +363,7 @@
                             <td class="px-4 py-3">
                                 <p class="font-medium text-slate-800">{{ $item->title }}</p>
                                 @if ($item->decision) <p class="text-xs text-slate-400">Keputusan: {{ \Illuminate\Support\Str::limit($item->decision->content, 70) }}</p> @endif
+                                @include('livewire.partials.evidence-links', ['files' => $item->evidenceAttachments])
                             </td>
                             <td class="px-4 py-3 whitespace-nowrap">{{ $item->pic->name }}</td>
                             <td class="px-4 py-3 whitespace-nowrap">
