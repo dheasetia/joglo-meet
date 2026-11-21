@@ -48,6 +48,7 @@
                     <x-btn variant="warning" icon="lock-open" wire:click="reopen" confirm="Pengesahan dibatalkan sehingga notulen dapat diubah kembali, lalu perlu disahkan ulang." confirm-title="Buka kunci notulen?">Buka kunci</x-btn>
                 @endif
                 <x-btn variant="secondary" icon="printer" :href="route('meetings.print', $meeting->id)" target="_blank">Cetak / PDF</x-btn>
+                <x-btn variant="secondary" icon="arrow-down-tray" :href="route('meetings.excel', $meeting->id)" title="Unduh notulen, daftar hadir, keputusan & RTL dalam format Excel">Excel</x-btn>
             </div>
         </div>
 

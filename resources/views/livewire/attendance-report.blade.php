@@ -1,7 +1,13 @@
 <div class="space-y-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-bold text-slate-900">Rekap Kehadiran Rapat</h1>
-        <x-btn variant="secondary" icon="printer" onclick="window.print()" class="print:hidden">Cetak</x-btn>
+        <div class="flex gap-2 print:hidden">
+            <x-btn variant="secondary" icon="arrow-down-tray" wire:click="exportExcel" wire:loading.attr="disabled" wire:target="exportExcel">
+                <span wire:loading.remove wire:target="exportExcel">Ekspor Excel</span>
+                <span wire:loading wire:target="exportExcel">Menyiapkan…</span>
+            </x-btn>
+            <x-btn variant="secondary" icon="printer" onclick="window.print()">Cetak</x-btn>
+        </div>
     </div>
 
     <div class="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4 print:hidden">

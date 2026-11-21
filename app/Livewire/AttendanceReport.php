@@ -3,14 +3,19 @@
 namespace App\Livewire;
 
 use App\Enums\MeetingStatus;
+use App\Exports\AttendanceExport;
 use App\Models\MeetingParticipant;
 use App\Models\MeetingType;
 use App\Models\Unit;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 #[Layout('components.layouts.app')]
 #[Title('Rekap Kehadiran Rapat')]
@@ -35,14 +40,26 @@ class AttendanceReport extends Component
         $this->to = $this->to ?: today()->format('Y-m-d');
     }
 
-    public function render()
+    /** Presensi peserta terdaftar pada rapat yang sudah berjalan, dalam periode & jenis rapat terpilih. */
+    protected function participations(): Builder
     {
-        $rows = MeetingParticipant::query()
+        return MeetingParticipant::query()
             ->join('meetings', 'meetings.id', '=', 'meeting_participants.meeting_id')
             ->whereNotNull('meeting_participants.user_id')
             ->whereIn('meetings.status', [MeetingStatus::Berlangsung->value, MeetingStatus::Selesai->value, MeetingStatus::Disahkan->value])
             ->whereBetween('meetings.date', [$this->from, $this->to])
             ->when($this->type, fn ($q) => $q->where('meetings.meeting_type_id', $this->type))
+            ->when($this->unit, fn ($q) => $q->whereIn('meeting_participants.user_id', User::where('unit_id', $this->unit)->select('id')));
+    }
+
+    /**
+     * Rekap per orang, diurutkan dari persentase kehadiran terendah.
+     *
+     * @return Collection<int, object>
+     */
+    public function reportRows(): Collection
+    {
+        $rows = $this->participations()
             ->selectRaw("
                 meeting_participants.user_id,
                 count(*) as invited,
@@ -56,10 +73,9 @@ class AttendanceReport extends Component
             ->get()
             ->keyBy('user_id');
 
-        $users = User::query()
+        return User::query()
             ->with('unit')
             ->whereIn('id', $rows->keys())
-            ->when($this->unit, fn ($q) => $q->where('unit_id', $this->unit))
             ->orderBy('name')
             ->get()
             ->map(function (User $u) use ($rows) {
@@ -79,9 +95,43 @@ class AttendanceReport extends Component
             })
             ->sortBy('percent')
             ->values();
+    }
 
+    /** Detail per orang per rapat (sheet kedua ekspor Excel). */
+    public function detailRows(): Collection
+    {
+        return $this->participations()
+            ->join('users', 'users.id', '=', 'meeting_participants.user_id')
+            ->select([
+                'users.name as user_name', 'meetings.date', 'meetings.start_time', 'meetings.title',
+                'meeting_participants.attendance_status', 'meeting_participants.checked_in_at', 'meeting_participants.note',
+            ])
+            ->orderBy('users.name')->orderBy('meetings.date')->orderBy('meetings.start_time')
+            ->get();
+    }
+
+    /** Keterangan filter yang sedang aktif (subjudul ekspor). */
+    public function filterSummary(): array
+    {
+        return array_filter([
+            'Periode '.Carbon::parse($this->from)->translatedFormat('d M Y').' – '.Carbon::parse($this->to)->translatedFormat('d M Y'),
+            $this->unit ? 'Unit: '.Unit::whereKey($this->unit)->value('name') : null,
+            $this->type ? 'Jenis rapat: '.MeetingType::whereKey($this->type)->value('name') : null,
+        ]);
+    }
+
+    public function exportExcel(): StreamedResponse
+    {
+        abort_unless(auth()->user()->isAdmin(), 403);
+
+        return AttendanceExport::build($this->reportRows(), $this->detailRows(), $this->filterSummary())
+            ->download('rekap-kehadiran-'.$this->from.'-sd-'.$this->to.'.xlsx');
+    }
+
+    public function render()
+    {
         return view('livewire.attendance-report', [
-            'rows' => $users,
+            'rows' => $this->reportRows(),
             'units' => Unit::orderBy('name')->get(),
             'types' => MeetingType::orderBy('name')->get(),
         ]);

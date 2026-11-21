@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CheckInController;
+use App\Http\Controllers\MeetingExcelController;
 use App\Http\Controllers\MeetingPrintController;
 use App\Livewire\ActionBoard;
 use App\Livewire\AttendanceReport;
@@ -28,6 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/rapat/{meetingId}/ubah', MeetingForm::class)->whereNumber('meetingId')->name('meetings.edit');
     Route::get('/rapat/{meeting}', MeetingRoom::class)->whereNumber('meeting')->name('meetings.show');
     Route::get('/rapat/{meeting}/cetak', MeetingPrintController::class)->whereNumber('meeting')->name('meetings.print');
+    Route::get('/rapat/{meeting}/excel', MeetingExcelController::class)->whereNumber('meeting')->name('meetings.excel');
 
     Route::get('/hadir/{token}', CheckInController::class)->name('checkin');
 

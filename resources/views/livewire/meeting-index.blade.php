@@ -1,9 +1,15 @@
 <div class="space-y-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="text-2xl font-bold text-slate-900">Daftar Rapat</h1>
-        @if ($canCreate)
-            <x-btn :href="route('meetings.create')" wire:navigate icon="plus">Rapat Baru</x-btn>
-        @endif
+        <div class="flex flex-wrap gap-2">
+            <x-btn variant="secondary" icon="arrow-down-tray" wire:click="exportExcel" wire:loading.attr="disabled" wire:target="exportExcel">
+                <span wire:loading.remove wire:target="exportExcel">Ekspor Excel</span>
+                <span wire:loading wire:target="exportExcel">Menyiapkan…</span>
+            </x-btn>
+            @if ($canCreate)
+                <x-btn :href="route('meetings.create')" wire:navigate icon="plus">Rapat Baru</x-btn>
+            @endif
+        </div>
     </div>
 
     <div class="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-6">
