@@ -94,6 +94,10 @@ class InteractionSmokeTest extends TestCase
             // tombol salin tautan presensi harus berisi URL asli, bukan "@js(...)" mentah
             ->assertSeeHtml('navigator.clipboard.writeText(')
             ->assertDontSeeHtml('@js(')
+            // konfirmasi memakai modal, bukan dialog bawaan browser (wire:confirm)
+            ->assertSeeHtml('role="alertdialog"')
+            ->assertSee('Akhiri rapat?')
+            ->assertDontSeeHtml('wire:confirm')
             ->call('selectAgenda', $carryAgenda->id)
             ->assertSee('Koordinasi jadwal mandi kelas XI')
             ->set("carry.{$open->id}.status", 'selesai')
@@ -213,5 +217,23 @@ class InteractionSmokeTest extends TestCase
         Livewire::test(\App\Filament\Widgets\LatestMeetings::class)
             ->assertSee('Rapat terbaru')
             ->assertCanSeeTableRecords(Meeting::orderByDesc('date')->limit(5)->get());
+    }
+
+    public function test_admin_buttons_match_app_buttons(): void
+    {
+        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+        $this->actingAs($admin);
+
+        // CSS penyeragam tombol ikut dimuat di panel
+        $this->get('/admin/users')->assertOk()->assertSee('.fi-btn:not(.fi-outlined)', false);
+
+        // Ikon & varian aksi: Tambah = hijau + plus, Ubah = abu + pencil-square, Hapus = merah + trash
+        Livewire::test(\App\Filament\Resources\Users\Pages\ManageUsers::class)
+            ->assertActionHasIcon('create', 'heroicon-o-plus')
+            ->assertActionHasColor('create', 'primary')
+            ->assertActionHasIcon(\Filament\Actions\Testing\TestAction::make('edit')->table($admin), 'heroicon-o-pencil-square')
+            ->assertActionHasColor(\Filament\Actions\Testing\TestAction::make('edit')->table($admin), 'gray')
+            ->assertActionHasIcon(\Filament\Actions\Testing\TestAction::make('delete')->table($admin), 'heroicon-o-trash')
+            ->assertActionHasColor(\Filament\Actions\Testing\TestAction::make('delete')->table($admin), 'danger');
     }
 }

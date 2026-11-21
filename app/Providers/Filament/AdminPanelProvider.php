@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\AdminButtons;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -13,6 +14,7 @@ use App\Filament\Widgets\MasterDataStats;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -27,6 +29,12 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  */
 class AdminPanelProvider extends PanelProvider
 {
+    public function boot(): void
+    {
+        // Ikon & varian tombol (Tambah, Ubah, Hapus, Simpan, Batal, Masuk, Keluar)
+        AdminButtons::register();
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -43,6 +51,8 @@ class AdminPanelProvider extends PanelProvider
             ))
             ->brandLogoHeight('2.5rem')
             ->favicon(asset('images/favicon-32.png'))
+            // Tombol diseragamkan dengan <x-btn> aplikasi rapat (warna, hover, animasi)
+            ->renderHook(PanelsRenderHook::STYLES_AFTER, fn () => view('filament.button-styles'))
             // Warna identitas jogloquran.com
             ->colors([
                 'primary' => Color::hex('#ae152d'),
