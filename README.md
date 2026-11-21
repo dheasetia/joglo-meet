@@ -128,14 +128,14 @@ resources/views/           Layout, halaman Livewire, cetak notulen
 | **Lampiran berkas/foto**: di setiap agenda (Ruang Rapat, bisa seret-lepas) dan bukti pada pembaruan progres RTL. File privat dengan cek hak akses, maks. 10 MB, foto diperkecil otomatis ke 1920 px. | ✅ Selesai |
 | **Ekspor Excel** (.xlsx, mengikuti filter & hak akses): *Daftar rapat*, *Rekap kehadiran* (sheet Rekap + Detail), dan *per rapat* dari Ruang Rapat (info & agenda, daftar hadir, keputusan & RTL, evaluasi RTL). | ✅ Selesai |
 | **Tanda tangan digital QR**: notulen yang disahkan mendapat kode verifikasi + sidik jari SHA-256 isinya; QR dicetak di kolom pengesahan. Pindai → halaman publik `/verifikasi/{kode}` menyatakan *SAH* / *Tidak berlaku* (pengesahan dicabut atau isi berubah) / *Kode tidak ditemukan*. Rapat lama: `php artisan rapat:terbitkan-tanda-tangan`. | ✅ Selesai |
-| Rapat berulang otomatis | ⏳ |
+| **Rapat berulang otomatis**: menu *Jadwal Rutin* (setiap pekan, dua pekan sekali, atau bulanan pekan ke-n/terakhir). Rapat dibuat otomatis tiap pagi (`rapat:buat-dari-jadwal`, cron 05.00) untuk N hari ke depan dari template jenis rapat, lengkap dengan peserta tetap; rapat yang dibatalkan tidak dibuat ulang. | ✅ Selesai |
 | Notifikasi WhatsApp (Fonnte): undangan, pengingat H-1, deadline RTL | ⏳ |
 
 Belum direncanakan: presensi RFID.
 
 ## 8. Penjadwal (cron)
 
-Tugas terjadwal (pembersihan log, dan nanti rapat berulang & notifikasi WhatsApp) dijalankan oleh penjadwal Laravel. Di shared hosting (cPanel → *Cron Jobs*) cukup tambahkan **satu** cron tiap menit:
+Tugas terjadwal (pembersihan log, pembuatan rapat dari jadwal rutin, dan nanti notifikasi WhatsApp) dijalankan oleh penjadwal Laravel. Di shared hosting (cPanel → *Cron Jobs*) cukup tambahkan **satu** cron tiap menit:
 
 ```
 * * * * * cd /home/USER/path-aplikasi && php artisan schedule:run >> /dev/null 2>&1

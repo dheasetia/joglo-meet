@@ -7,6 +7,7 @@
                 <span wire:loading wire:target="exportExcel">Menyiapkan…</span>
             </x-btn>
             @if ($canCreate)
+                <x-btn variant="secondary" icon="arrow-path" :href="route('schedules.index')" wire:navigate>Jadwal rutin</x-btn>
                 <x-btn :href="route('meetings.create')" wire:navigate icon="plus">Rapat Baru</x-btn>
             @endif
         </div>
@@ -35,7 +36,10 @@
             <a href="{{ route('meetings.show', $m) }}" wire:navigate wire:key="m-{{ $m->id }}" class="card group flex flex-col p-5 transition hover:border-brand-300 hover:shadow-md">
                 <div class="mb-3 flex items-start justify-between gap-2">
                     <span class="badge {{ $m->status->badge() }}">{{ $m->status->label() }}</span>
-                    @if ($m->isConfidential()) <span class="badge bg-slate-800 text-white">Rahasia</span> @endif
+                    <span class="flex gap-1">
+                        @if ($m->meeting_schedule_id) <span class="badge bg-sky-50 text-sky-700" title="Dibuat otomatis dari jadwal rutin">↻ Rutin</span> @endif
+                        @if ($m->isConfidential()) <span class="badge bg-slate-800 text-white">Rahasia</span> @endif
+                    </span>
                 </div>
                 <h2 class="font-semibold text-slate-900 group-hover:text-brand-700">{{ $m->title }}</h2>
                 <p class="text-xs text-slate-500">{{ $m->type?->name ?? 'Rapat umum' }}{{ $m->unit ? ' · '.$m->unit->name : '' }}</p>

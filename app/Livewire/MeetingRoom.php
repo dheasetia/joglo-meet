@@ -475,7 +475,7 @@ class MeetingRoom extends Component
 
     public function render()
     {
-        $this->meeting->refresh()->load(['type', 'unit', 'chair', 'secretary', 'approver', 'activeSignature']);
+        $this->meeting->refresh()->load(['type', 'unit', 'chair', 'secretary', 'approver', 'activeSignature', 'schedule']);
 
         $agendas = $this->meeting->agendas()
             ->with(['presenter', 'decisions.actionItems.pic', 'attachments.uploader'])

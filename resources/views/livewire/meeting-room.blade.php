@@ -8,6 +8,13 @@
                     <h1 class="text-xl font-bold text-slate-900 sm:text-2xl">{{ $meeting->title }}</h1>
                     <span class="badge {{ $meeting->status->badge() }}">{{ $meeting->status->label() }}</span>
                     @if ($meeting->isConfidential()) <span class="badge bg-slate-800 text-white">Rahasia</span> @endif
+                    @if ($meeting->schedule)
+                        @if ($meeting->schedule->canManage(auth()->user()))
+                            <a href="{{ route('schedules.edit', $meeting->schedule->id) }}" wire:navigate class="badge bg-sky-50 text-sky-700 hover:underline" title="{{ $meeting->schedule->describe() }}">↻ Dari jadwal rutin</a>
+                        @else
+                            <span class="badge bg-sky-50 text-sky-700" title="{{ $meeting->schedule->describe() }}">↻ Dari jadwal rutin</span>
+                        @endif
+                    @endif
                 </div>
                 <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
                     <span>📅 {{ $meeting->date->translatedFormat('l, d F Y') }}</span>

@@ -19,7 +19,7 @@ class Meeting extends Model
     use RecordsActivity;
 
     protected $fillable = [
-        'meeting_type_id', 'unit_id', 'title', 'date', 'start_time', 'end_time',
+        'meeting_type_id', 'meeting_schedule_id', 'unit_id', 'title', 'date', 'start_time', 'end_time',
         'location', 'online_link', 'chair_id', 'secretary_id', 'confidentiality',
         'status', 'notes', 'started_at', 'ended_at', 'approved_at', 'approved_by', 'created_by',
     ];
@@ -58,6 +58,12 @@ class Meeting extends Model
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class);
+    }
+
+    /** Jadwal rutin asal rapat (bila dibuat otomatis). */
+    public function schedule(): BelongsTo
+    {
+        return $this->belongsTo(MeetingSchedule::class, 'meeting_schedule_id');
     }
 
     public function chair(): BelongsTo

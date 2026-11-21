@@ -13,6 +13,8 @@ use App\Livewire\MeetingForm;
 use App\Livewire\MeetingIndex;
 use App\Livewire\MeetingRoom;
 use App\Livewire\MyTasks;
+use App\Livewire\ScheduleForm;
+use App\Livewire\ScheduleIndex;
 use Illuminate\Support\Facades\Route;
 
 // Verifikasi tanda tangan digital notulen — publik (dipindai dari QR), dibatasi 30 permintaan/menit
@@ -41,6 +43,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/hadir/{token}', CheckInController::class)->name('checkin');
 
     Route::get('/lampiran/{attachment}', AttachmentController::class)->whereNumber('attachment')->name('attachments.show');
+
+    Route::get('/jadwal-rutin', ScheduleIndex::class)->name('schedules.index');
+    Route::get('/jadwal-rutin/buat', ScheduleForm::class)->name('schedules.create');
+    Route::get('/jadwal-rutin/{scheduleId}/ubah', ScheduleForm::class)->whereNumber('scheduleId')->name('schedules.edit');
 
     Route::get('/rtl', ActionBoard::class)->name('actions.index');
     Route::get('/tugas-saya', MyTasks::class)->name('actions.mine');

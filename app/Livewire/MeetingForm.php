@@ -4,12 +4,14 @@ namespace App\Livewire;
 
 use App\Enums\MeetingStatus;
 use App\Livewire\Concerns\IndonesianValidation;
+use App\Livewire\Concerns\PicksParticipants;
 use App\Models\Meeting;
 use App\Models\MeetingType;
 use App\Models\Unit;
 use App\Models\Agenda;
 use App\Models\MeetingParticipant;
 use App\Models\User;
+use App\Support\AgendaTemplate;
 use App\Support\MeetingActivity;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -19,7 +21,7 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class MeetingForm extends Component
 {
-    use IndonesianValidation;
+    use IndonesianValidation, PicksParticipants;
 
     public ?int $meetingId = null;
 
@@ -35,13 +37,10 @@ class MeetingForm extends Component
     public $secretary_id = '';
     public string $confidentiality = 'biasa';
 
-    /** @var array<int, string> */
-    public array $participantIds = [];
 
     /** @var array<int, array{id:?int,title:string,presenter_id:mixed,duration_minutes:mixed,is_carry_over:bool}> */
     public array $agendas = [];
 
-    public string $participantSearch = '';
 
     public function mount($meetingId = null): void
     {
@@ -115,20 +114,13 @@ class MeetingForm extends Component
 
     protected function defaultAgendas(?MeetingType $type): array
     {
-        $titles = array_merge(
-            config('rapat.opening_agendas', []),
-            [config('rapat.carry_over_agenda')],
-            $type?->default_agendas ?? [''],
-            config('rapat.closing_agendas', []),
-        );
-
-        return collect($titles)->map(fn ($t) => [
+        return collect(AgendaTemplate::for($type))->map(fn ($a) => [
             'id' => null,
-            'title' => (string) $t,
+            'title' => $a['title'],
             'presenter_id' => '',
             'duration_minutes' => null,
-            'is_carry_over' => $t === config('rapat.carry_over_agenda'),
-        ])->values()->all();
+            'is_carry_over' => $a['is_carry_over'],
+        ])->all();
     }
 
     public function addAgenda(): void
@@ -158,16 +150,6 @@ class MeetingForm extends Component
             return;
         }
         [$this->agendas[$index], $this->agendas[$target]] = [$this->agendas[$target], $this->agendas[$index]];
-    }
-
-    public function toggleUnit(?int $unitId): void
-    {
-        $ids = User::where('is_active', true)->where('unit_id', $unitId)->pluck('id')->map(fn ($id) => (string) $id);
-        $current = collect($this->participantIds);
-
-        $this->participantIds = $ids->diff($current)->isEmpty()
-            ? $current->diff($ids)->values()->all()   // semua sudah terpilih → batalkan
-            : $current->merge($ids)->unique()->values()->all();
     }
 
     public function save()
@@ -314,16 +296,8 @@ class MeetingForm extends Component
 
     public function render()
     {
-        $users = User::where('is_active', true)->with('unit')->orderBy('name')->get();
-
-        $filtered = $this->participantSearch
-            ? $users->filter(fn ($u) => str_contains(mb_strtolower($u->name.' '.$u->jabatan), mb_strtolower($this->participantSearch)))
-            : $users;
-
         return view('livewire.meeting-form', [
-            'users' => $users,
-            'groups' => $filtered->groupBy(fn ($u) => $u->unit?->name ?? 'Tanpa unit'),
-            'unitIds' => Unit::pluck('id', 'name'),
+            ...$this->participantPickerData(),
             'types' => MeetingType::where('is_active', true)->orderBy('name')->get(),
             'units' => Unit::orderBy('name')->get(),
         ])->title($this->meetingId ? 'Ubah Rapat' : 'Rapat Baru');

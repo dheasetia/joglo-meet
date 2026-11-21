@@ -15,3 +15,6 @@ Artisan::command('inspire', function () {
 
 // Hapus log aktivitas yang lebih tua dari 365 hari (config/activitylog.php → clean_after_days)
 Schedule::command('activitylog:clean --force')->dailyAt('02:00');
+
+// Buat rapat dari jadwal rutin untuk beberapa hari ke depan (meeting_schedules.lead_days)
+Schedule::command('rapat:buat-dari-jadwal')->dailyAt('05:00');

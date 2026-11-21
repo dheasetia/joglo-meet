@@ -22,6 +22,10 @@
         ['route' => 'actions.index', 'match' => 'actions.index', 'label' => 'Papan RTL', 'icon' => 'M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2'],
         ['route' => 'actions.mine', 'match' => 'actions.mine', 'label' => 'Tugas Saya', 'icon' => 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4'],
     ];
+    if ($user->canCreateMeeting()) {
+        // Hanya di sidebar; di HP diakses dari halaman Daftar Rapat agar navigasi bawah tidak sesak
+        array_splice($nav, 2, 0, [['route' => 'schedules.index', 'match' => 'schedules.*', 'label' => 'Jadwal Rutin', 'mobile' => false, 'icon' => 'M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99']]);
+    }
     if ($user->isAdmin()) {
         $nav[] = ['route' => 'reports.attendance', 'match' => 'reports.*', 'label' => 'Laporan', 'icon' => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'];
     }
@@ -79,9 +83,10 @@
     </div>
 </div>
 
+@php $mobileNav = array_values(array_filter($nav, fn ($item) => $item['mobile'] ?? true)); @endphp
 {{-- Bottom nav (mobile) --}}
-<nav class="fixed inset-x-0 bottom-0 z-30 grid border-t border-slate-200 bg-white lg:hidden" style="grid-template-columns: repeat({{ count($nav) }}, minmax(0, 1fr))">
-    @foreach ($nav as $item)
+<nav class="fixed inset-x-0 bottom-0 z-30 grid border-t border-slate-200 bg-white lg:hidden" style="grid-template-columns: repeat({{ count($mobileNav) }}, minmax(0, 1fr))">
+    @foreach ($mobileNav as $item)
         <a href="{{ route($item['route']) }}" wire:navigate @class(['flex flex-col items-center gap-0.5 py-2 text-[11px] font-medium', 'text-brand-700' => request()->routeIs($item['match']), 'text-slate-500' => ! request()->routeIs($item['match'])])>
             <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $item['icon'] }}"/></svg>
             {{ $item['label'] }}
