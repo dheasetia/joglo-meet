@@ -34,18 +34,18 @@
                 @if ($canEdit)
                     @if ($meeting->status === \App\Enums\MeetingStatus::Terjadwal)
                         <x-btn variant="secondary" icon="pencil-square" :href="route('meetings.edit', $meeting->id)" wire:navigate>Ubah</x-btn>
-                        <x-btn variant="warning" icon="arrow-uturn-left" wire:click="cancelMeeting" wire:confirm="Batalkan rapat ini?">Batalkan</x-btn>
+                        <x-btn variant="warning" icon="arrow-uturn-left" wire:click="cancelMeeting" confirm="Rapat ini akan ditandai batal dan tidak dapat dimulai atau diubah lagi." confirm-title="Batalkan rapat?" confirm-button="Ya, batalkan rapat">Batalkan</x-btn>
                         <x-btn icon="play" wire:click="startMeeting">Mulai Rapat</x-btn>
                     @elseif ($meeting->status === \App\Enums\MeetingStatus::Berlangsung)
                         <x-btn variant="secondary" icon="pencil-square" :href="route('meetings.edit', $meeting->id)" wire:navigate>Ubah agenda/peserta</x-btn>
-                        <x-btn variant="danger" icon="stop" wire:click="endMeeting" wire:confirm="Akhiri rapat? Peserta yang belum presensi akan ditandai alpa.">Akhiri Rapat</x-btn>
+                        <x-btn variant="danger" icon="stop" wire:click="endMeeting" confirm="Peserta yang belum presensi akan ditandai alpa, lalu notulen menunggu pengesahan." confirm-title="Akhiri rapat?">Akhiri Rapat</x-btn>
                     @endif
                 @endif
                 @if ($meeting->status === \App\Enums\MeetingStatus::Selesai && $canApprove)
-                    <x-btn icon="check-badge" wire:click="approve" wire:confirm="Sahkan notulen ini? Setelah disahkan, notulen terkunci.">Sahkan Notulen</x-btn>
+                    <x-btn icon="check-badge" wire:click="approve" confirm="Setelah disahkan, notulen terkunci dan tidak dapat diubah lagi." confirm-title="Sahkan notulen?" confirm-button="Sahkan">Sahkan Notulen</x-btn>
                 @endif
                 @if ($meeting->status === \App\Enums\MeetingStatus::Disahkan && $isAdmin)
-                    <x-btn variant="warning" icon="lock-open" wire:click="reopen" wire:confirm="Batalkan pengesahan agar notulen bisa diubah?">Buka kunci</x-btn>
+                    <x-btn variant="warning" icon="lock-open" wire:click="reopen" confirm="Pengesahan dibatalkan sehingga notulen dapat diubah kembali, lalu perlu disahkan ulang." confirm-title="Buka kunci notulen?">Buka kunci</x-btn>
                 @endif
                 <x-btn variant="secondary" icon="printer" :href="route('meetings.print', $meeting->id)" target="_blank">Cetak / PDF</x-btn>
             </div>
@@ -174,7 +174,7 @@
                                         @if ($canEdit)
                                             <div class="flex shrink-0 gap-1">
                                                 <x-btn variant="secondary" size="sm" icon="pencil-square" wire:click="editDecision({{ $decision->id }})">Ubah</x-btn>
-                                                <x-btn variant="danger" size="sm" icon="trash" wire:click="deleteDecision({{ $decision->id }})" wire:confirm="Hapus keputusan ini beserta RTL-nya?">Hapus</x-btn>
+                                                <x-btn variant="danger" size="sm" icon="trash" wire:click="deleteDecision({{ $decision->id }})" confirm="Keputusan ini beserta semua RTL-nya akan dihapus permanen." confirm-title="Hapus keputusan?">Hapus</x-btn>
                                             </div>
                                         @endif
                                     </div>
@@ -194,7 +194,7 @@
                                                 <span class="badge {{ $item->status->badge() }}">{{ $item->status->label() }}</span>
                                                 @if ($canEdit)
                                                     <x-btn variant="secondary" size="sm" icon="pencil-square" wire:click="editRtl({{ $item->id }})" title="Ubah RTL" aria-label="Ubah RTL" />
-                                                    <x-btn variant="danger" size="sm" icon="trash" wire:click="deleteRtl({{ $item->id }})" wire:confirm="Hapus RTL ini?" title="Hapus RTL" aria-label="Hapus RTL" />
+                                                    <x-btn variant="danger" size="sm" icon="trash" wire:click="deleteRtl({{ $item->id }})" confirm="RTL ini beserta riwayat progresnya akan dihapus permanen." confirm-title="Hapus RTL?" confirm-button="Hapus" title="Hapus RTL" aria-label="Hapus RTL" />
                                                 @endif
                                             </div>
                                         @endif
@@ -293,7 +293,7 @@
                                        class="input w-full sm:w-48">
                             @endif
                             @if (! in_array($p->user_id, [$meeting->chair_id, $meeting->secretary_id], true))
-                                <x-btn variant="danger" size="sm" icon="trash" wire:click="removeParticipant({{ $p->id }})" wire:confirm="Hapus {{ $p->displayName() }} dari daftar peserta?" title="Hapus peserta" aria-label="Hapus peserta" />
+                                <x-btn variant="danger" size="sm" icon="trash" wire:click="removeParticipant({{ $p->id }})" confirm="{{ $p->displayName() }} akan dihapus dari daftar peserta rapat ini." confirm-title="Hapus peserta?" confirm-button="Hapus" title="Hapus peserta" aria-label="Hapus peserta" />
                             @endif
                         @else
                             <span class="badge {{ $p->attendance_status->badge() }}">{{ $p->attendance_status->label() }}</span>

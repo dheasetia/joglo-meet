@@ -130,7 +130,7 @@
                                     <x-btn variant="secondary" size="sm" icon="chevron-up" wire:click="moveAgenda({{ $i }}, -1)" :disabled="$i === 0" title="Naik" aria-label="Naikkan agenda" />
                                     <x-btn variant="secondary" size="sm" icon="chevron-down" wire:click="moveAgenda({{ $i }}, 1)" :disabled="$i === count($agendas) - 1" title="Turun" aria-label="Turunkan agenda" />
                                 </div>
-                                <x-btn variant="danger" size="sm" icon="trash" wire:click="removeAgenda({{ $i }})" wire:confirm="Hapus agenda ini? Pembahasan & keputusan di dalamnya ikut terhapus saat disimpan." title="Hapus agenda" aria-label="Hapus agenda" />
+                                <x-btn variant="danger" size="sm" icon="trash" wire:click="removeAgenda({{ $i }})" confirm="Agenda ini beserta pembahasan & keputusan di dalamnya akan terhapus saat rapat disimpan." confirm-title="Hapus agenda?" confirm-button="Hapus" title="Hapus agenda" aria-label="Hapus agenda" />
                             </div>
                         </li>
                     @endforeach
