@@ -53,8 +53,14 @@
 
         {{-- Tabs --}}
         <div class="mt-5 flex gap-1 overflow-x-auto border-b border-slate-200 text-sm font-semibold">
-            @foreach (['notulen' => 'Notulen', 'presensi' => 'Presensi ('.$attendance['present'].'/'.$attendance['total'].')', 'rtl' => 'RTL ('.$allActions->count().')'] as $key => $label)
-                <button type="button" x-on:click="tab = '{{ $key }}'"
+            @php
+                $tabs = ['notulen' => 'Notulen', 'presensi' => 'Presensi ('.$attendance['present'].'/'.$attendance['total'].')', 'rtl' => 'RTL ('.$allActions->count().')'];
+                if ($canManage) {
+                    $tabs['riwayat'] = 'Riwayat';
+                }
+            @endphp
+            @foreach ($tabs as $key => $label)
+                <button type="button" x-on:click="tab = '{{ $key }}'@if ($key === 'riwayat'); $dispatch('meeting-history-refresh')@endif"
                         :class="tab === '{{ $key }}' ? 'border-brand-600 text-brand-700' : 'border-transparent text-slate-500 hover:text-slate-700'"
                         class="-mb-px border-b-2 px-4 py-2 whitespace-nowrap">{{ $label }}</button>
             @endforeach
@@ -376,4 +382,11 @@
         </div>
         <p class="border-t border-slate-100 px-4 py-3 text-xs text-slate-500">Penanggung jawab memperbarui progres dari menu <a href="{{ route('actions.mine') }}" wire:navigate class="font-semibold text-brand-700">Tugas Saya</a>. RTL yang belum selesai otomatis muncul pada agenda “Evaluasi RTL” di rapat berikutnya dengan jenis yang sama.</p>
     </div>
+
+    {{-- ============ TAB RIWAYAT (log aktivitas, hanya pengelola rapat) ============ --}}
+    @if ($canManage)
+        <div x-show="tab === 'riwayat'" x-cloak>
+            <livewire:meeting-history :meeting-id="$meeting->id" lazy wire:key="history-{{ $meeting->id }}" />
+        </div>
+    @endif
 </div>

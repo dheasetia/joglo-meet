@@ -7,7 +7,10 @@ use App\Livewire\Concerns\IndonesianValidation;
 use App\Models\Meeting;
 use App\Models\MeetingType;
 use App\Models\Unit;
+use App\Models\Agenda;
+use App\Models\MeetingParticipant;
 use App\Models\User;
+use App\Support\MeetingActivity;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -235,17 +238,33 @@ class MeetingForm extends Component
                 ->filter()->map(fn ($id) => (int) $id)->unique();
 
             $existing = $meeting->participants()->whereNotNull('user_id')->pluck('user_id');
-            foreach ($ids->diff($existing) as $id) {
-                $meeting->participants()->create(['user_id' => $id]);
-            }
+            $addedIds = $ids->diff($existing)->values();
             // Hapus yang dibatalkan undangannya, kecuali yang sudah tercatat presensinya
-            $meeting->participants()
+            $removable = $meeting->participants()
                 ->whereNotNull('user_id')
                 ->whereNotIn('user_id', $ids->all())
-                ->where('attendance_status', 'belum')
-                ->delete();
+                ->where('attendance_status', 'belum');
+            $removedIds = (clone $removable)->pluck('user_id');
 
-            // Agenda
+            // Dicatat sebagai satu ringkasan (bukan satu log per peserta)
+            MeetingParticipant::withoutActivity(function () use ($meeting, $addedIds, $removable) {
+                foreach ($addedIds as $id) {
+                    $meeting->participants()->create(['user_id' => $id]);
+                }
+                $removable->delete();
+            });
+
+            $names = User::whereIn('id', $addedIds->merge($removedIds))->pluck('name', 'id');
+            if ($addedIds->isNotEmpty() || $removedIds->isNotEmpty()) {
+                MeetingActivity::log($meeting, 'presensi', $this->meetingId ? 'mengubah daftar peserta' : 'mengundang peserta', [
+                    'Ditambahkan' => $addedIds->map(fn ($id) => $names[$id] ?? "#{$id}")->all(),
+                    'Dihapus' => $removedIds->map(fn ($id) => $names[$id] ?? "#{$id}")->all(),
+                ]);
+            }
+
+            // Agenda (dicatat sebagai satu ringkasan)
+            $agendaLog = ['Ditambahkan' => [], 'Diubah' => [], 'Dihapus' => []];
+            $oldOrder = $meeting->agendas()->pluck('id')->all();
             $keepIds = [];
             foreach (array_values($data['agendas']) as $i => $row) {
                 $values = [
@@ -257,14 +276,33 @@ class MeetingForm extends Component
                 ];
                 $agendaId = $this->agendas[$i]['id'] ?? null;
                 $agenda = $agendaId ? $meeting->agendas()->whereKey($agendaId)->first() : null;
-                if ($agenda) {
-                    $agenda->update($values);
-                } else {
-                    $agenda = $meeting->agendas()->create($values);
-                }
+                Agenda::withoutActivity(function () use (&$agenda, $meeting, $values, &$agendaLog) {
+                    if ($agenda) {
+                        $agenda->fill($values);
+                        if ($agenda->isDirty(['title', 'presenter_id', 'duration_minutes'])) {
+                            $agendaLog['Diubah'][] = $agenda->getOriginal('title') === $values['title']
+                                ? $values['title']
+                                : $agenda->getOriginal('title').' → '.$values['title'];
+                        }
+                        $agenda->save();
+                    } else {
+                        $agenda = $meeting->agendas()->create($values);
+                        $agendaLog['Ditambahkan'][] = $values['title'];
+                    }
+                });
                 $keepIds[] = $agenda->id;
             }
-            $meeting->agendas()->whereNotIn('id', $keepIds)->get()->each->delete();
+            $removedAgendas = $meeting->agendas()->whereNotIn('id', $keepIds)->get();
+            $agendaLog['Dihapus'] = $removedAgendas->pluck('title')->all();
+            Agenda::withoutActivity(fn () => $removedAgendas->each->delete());
+
+            $reordered = $this->meetingId && array_values(array_intersect($oldOrder, $keepIds)) !== array_values(array_intersect($keepIds, $oldOrder));
+            if (array_filter($agendaLog) || $reordered) {
+                MeetingActivity::log($meeting, 'notulen', $this->meetingId ? 'mengubah daftar agenda' : 'menyusun agenda rapat', [
+                    ...($this->meetingId ? $agendaLog : ['Agenda' => $agendaLog['Ditambahkan']]),
+                    'Urutan' => $reordered ? 'diubah' : null,
+                ]);
+            }
 
             return $meeting;
         });

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsActivity;
 use App\Enums\Role;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -13,7 +14,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, RecordsActivity;
 
     protected $fillable = [
         'name', 'email', 'password', 'phone', 'jabatan', 'role', 'unit_id', 'is_active',
@@ -63,5 +64,32 @@ class User extends Authenticatable implements FilamentUser
             ->filter()->take(2)
             ->map(fn ($w) => mb_strtoupper(mb_substr($w, 0, 1)))
             ->implode('');
+    }
+
+    // ---------- Log aktivitas ----------
+
+    public static function activityLogName(): string
+    {
+        return 'data-master';
+    }
+
+    /** Kata sandi & token tidak pernah dicatat (juga dikecualikan global di config/activitylog.php). */
+    protected function activityAttributes(): array
+    {
+        return ['name', 'email', 'phone', 'jabatan', 'role', 'unit_id', 'is_active'];
+    }
+
+    protected function activityDescription(string $event): string
+    {
+        return match ($event) {
+            'created' => 'menambahkan pengguna',
+            'deleted' => 'menghapus pengguna',
+            default => 'mengubah pengguna',
+        };
+    }
+
+    public function activityLabel(): ?string
+    {
+        return $this->name;
     }
 }

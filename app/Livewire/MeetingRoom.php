@@ -13,6 +13,7 @@ use App\Models\Decision;
 use App\Models\Meeting;
 use App\Models\MeetingParticipant;
 use App\Models\User;
+use App\Support\MeetingActivity;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -97,8 +98,15 @@ class MeetingRoom extends Component
         $this->ensureCanEdit();
         $this->meeting->update(['status' => MeetingStatus::Selesai, 'ended_at' => now()]);
         // Peserta yang tidak presensi dianggap alpa
+        $absent = $this->pendingParticipantNames();
         $this->meeting->participants()->where('attendance_status', AttendanceStatus::Belum->value)
             ->update(['attendance_status' => AttendanceStatus::Alpa->value]);
+        if ($absent) {
+            MeetingActivity::log($this->meeting, 'presensi', 'menandai peserta yang belum presensi sebagai alpa (otomatis)', [
+                'Jumlah' => count($absent).' orang',
+                'Peserta' => $absent,
+            ]);
+        }
         $this->dispatch('toast', message: 'Rapat selesai. Notulen menunggu pengesahan.');
     }
 
@@ -136,8 +144,14 @@ class MeetingRoom extends Component
     public function updatedDiscussions($value, $key): void
     {
         $this->ensureCanEdit();
-        $this->agenda((int) $key)->update(['discussion' => $value]);
+        $agenda = $this->agenda((int) $key);
+        $agenda->update(['discussion' => $value]);
         $this->savedAt = now()->format('H:i:s');
+
+        // Tersimpan tiap 1,5 detik saat mengetik → dicatat paling banyak sekali per 10 menit
+        MeetingActivity::throttled("pembahasan:{$agenda->id}", 10, fn () => MeetingActivity::log(
+            $this->meeting, 'notulen', 'mengubah pembahasan agenda', subject: $agenda, label: $agenda->title,
+        ));
     }
 
     public function updatedNotes($value): void
@@ -145,6 +159,10 @@ class MeetingRoom extends Component
         $this->ensureCanEdit();
         $this->meeting->update(['notes' => $value]);
         $this->savedAt = now()->format('H:i:s');
+
+        MeetingActivity::throttled("catatan:{$this->meeting->id}", 10, fn () => MeetingActivity::log(
+            $this->meeting, 'notulen', 'mengubah catatan umum rapat',
+        ));
     }
 
     // ---------------------------------------------------------------- Keputusan
@@ -187,7 +205,8 @@ class MeetingRoom extends Component
     {
         $this->ensureCanEdit();
         $decision = $this->meeting->decisions()->whereKey($id)->firstOrFail();
-        $decision->actionItems()->delete();
+        // Hapus satu per satu agar setiap RTL yang ikut terhapus tercatat di log
+        $decision->actionItems()->get()->each->delete();
         $decision->delete();
         $this->dispatch('toast', message: 'Keputusan beserta RTL-nya dihapus.');
     }
@@ -319,9 +338,27 @@ class MeetingRoom extends Component
     public function setAllPresent(): void
     {
         $this->ensureCanEdit();
+        $present = $this->pendingParticipantNames();
         $this->meeting->participants()->where('attendance_status', AttendanceStatus::Belum->value)
             ->update(['attendance_status' => AttendanceStatus::Hadir->value, 'checked_in_at' => now()]);
+        if ($present) {
+            MeetingActivity::log($this->meeting, 'presensi', 'menandai semua peserta yang belum presensi hadir', [
+                'Jumlah' => count($present).' orang',
+                'Peserta' => $present,
+            ]);
+        }
         $this->dispatch('toast', message: 'Semua peserta yang belum presensi ditandai hadir.');
+    }
+
+    /** Nama peserta yang belum presensi (untuk ringkasan log operasi massal). */
+    protected function pendingParticipantNames(): array
+    {
+        return $this->meeting->participants()
+            ->where('attendance_status', AttendanceStatus::Belum->value)
+            ->with('user:id,name')
+            ->get()
+            ->map(fn (MeetingParticipant $p) => $p->displayName())
+            ->all();
     }
 
     public function updateParticipantNote(int $participantId, string $note): void
@@ -385,6 +422,7 @@ class MeetingRoom extends Component
             'allActions' => $this->meeting->actionItems()->with(['pic', 'decision'])->orderBy('due_date')->get(),
             'users' => User::where('is_active', true)->orderBy('name')->get(['id', 'name', 'jabatan']),
             'canEdit' => $this->canEdit(),
+            'canManage' => $this->meeting->canManage($user),
             'canApprove' => $this->meeting->canApprove($user),
             'isAdmin' => $user->isAdmin(),
             'checkinUrl' => route('checkin', $this->meeting->checkin_token),

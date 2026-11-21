@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsActivity;
 use App\Enums\ActionStatus;
 use App\Enums\Priority;
 use Illuminate\Database\Eloquent\Builder;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class ActionItem extends Model
 {
+    use RecordsActivity;
+
     protected $fillable = [
         'meeting_id', 'decision_id', 'title', 'description', 'success_indicator',
         'pic_id', 'due_date', 'priority', 'status', 'progress', 'completed_at',
@@ -133,5 +136,42 @@ class ActionItem extends Model
                 'note' => filled($note) ? $note : null,
             ]);
         });
+    }
+
+    // ---------- Log aktivitas ----------
+
+    public static function activityLogName(): string
+    {
+        return 'rtl';
+    }
+
+    protected function activityAttributes(): array
+    {
+        return ['title', 'description', 'pic_id', 'due_date', 'priority', 'success_indicator'];
+    }
+
+    /** Perubahan progres/status dicatat lewat ActionItemUpdate (beserta catatannya). */
+    protected function activityIgnoredOnly(): array
+    {
+        return ['progress', 'status', 'completed_at', 'decision_id'];
+    }
+
+    protected function activityDescription(string $event): string
+    {
+        return match ($event) {
+            'created' => 'menambahkan RTL',
+            'deleted' => 'menghapus RTL',
+            default => 'mengubah RTL',
+        };
+    }
+
+    public function activityMeetingId(): ?int
+    {
+        return $this->meeting_id;
+    }
+
+    public function activityLabel(): ?string
+    {
+        return $this->title;
     }
 }

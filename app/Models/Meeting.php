@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\RecordsActivity;
 use App\Enums\ActionStatus;
 use App\Enums\MeetingStatus;
 use Illuminate\Database\Eloquent\Builder;
@@ -14,6 +15,8 @@ use Illuminate\Support\Str;
 
 class Meeting extends Model
 {
+    use RecordsActivity;
+
     protected $fillable = [
         'meeting_type_id', 'unit_id', 'title', 'date', 'start_time', 'end_time',
         'location', 'online_link', 'chair_id', 'secretary_id', 'confidentiality',
@@ -201,5 +204,57 @@ class Meeting extends Model
             'present' => $present,
             'percent' => $total ? (int) round($present / $total * 100) : 0,
         ];
+    }
+
+    // ---------- Log aktivitas ----------
+
+    public static function activityLogName(): string
+    {
+        return 'rapat';
+    }
+
+    protected function activityAttributes(): array
+    {
+        return ['title', 'meeting_type_id', 'unit_id', 'date', 'start_time', 'end_time', 'location',
+            'online_link', 'chair_id', 'secretary_id', 'confidentiality', 'status'];
+    }
+
+    /** Catatan umum tersimpan otomatis saat diketik; dicatat terpisah (dibatasi) oleh Ruang Rapat. */
+    protected function activityIgnoredOnly(): array
+    {
+        return ['notes', 'started_at', 'ended_at', 'approved_at', 'approved_by', 'checkin_token'];
+    }
+
+    protected function activityDescription(string $event): string
+    {
+        if ($event === 'created') {
+            return 'membuat rapat';
+        }
+
+        if ($event === 'deleted') {
+            return 'menghapus rapat';
+        }
+
+        if (! $this->wasChanged('status')) {
+            return 'mengubah data rapat';
+        }
+
+        return match ($this->status) {
+            MeetingStatus::Berlangsung => 'memulai rapat',
+            MeetingStatus::Selesai => $this->getOriginal('status') === MeetingStatus::Disahkan ? 'membuka kunci notulen' : 'mengakhiri rapat',
+            MeetingStatus::Disahkan => 'mengesahkan notulen',
+            MeetingStatus::Batal => 'membatalkan rapat',
+            MeetingStatus::Terjadwal => 'menjadwalkan ulang rapat',
+        };
+    }
+
+    public function activityMeetingId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function activityLabel(): ?string
+    {
+        return $this->title;
     }
 }

@@ -16,6 +16,12 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        // Data contoh tidak perlu masuk log aktivitas
+        activity()->withoutLogging(fn () => $this->seedData());
+    }
+
+    protected function seedData(): void
+    {
         // ---------- Unit ----------
         $units = collect(['Pimpinan', 'SMP', 'SMA', 'Pengasuhan', 'Tahfizh', 'Yayasan'])
             ->mapWithKeys(fn ($name) => [$name => Unit::create(['name' => $name])]);

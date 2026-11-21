@@ -120,11 +120,25 @@ config/rapat.php           Kop surat, batas terlambat, agenda pembuka/penutup ot
 resources/views/           Layout, halaman Livewire, cetak notulen
 ```
 
-## 7. Belum termasuk (tahap berikutnya)
+## 7. Tahap kedua
 
-- Notifikasi WhatsApp (undangan, pengingat H-1, deadline RTL)
-- Presensi RFID (terhubung ke sistem pesantren)
-- Lampiran berkas/foto pada agenda dan bukti RTL
-- Log aktivitas (siapa mengubah apa)
-- Ekspor Excel dan tanda tangan digital QR
-- Template rapat berulang (otomatis terjadwal tiap pekan)
+| Fitur | Status |
+|---|---|
+| **Log aktivitas**: siapa mengubah apa & kapan (rapat, notulen, keputusan, RTL, presensi, data master, login). Tab *Riwayat* di Ruang Rapat (pengelola rapat) dan menu *Log Aktivitas* di `/admin`. Log > 365 hari dihapus otomatis. | ✅ Selesai |
+| Lampiran berkas/foto pada agenda dan bukti RTL | ⏳ |
+| Ekspor Excel (RTL, rekap kehadiran) | ⏳ |
+| Tanda tangan digital QR pada notulen yang disahkan | ⏳ |
+| Rapat berulang otomatis | ⏳ |
+| Notifikasi WhatsApp (Fonnte): undangan, pengingat H-1, deadline RTL | ⏳ |
+
+Belum direncanakan: presensi RFID.
+
+## 8. Penjadwal (cron)
+
+Tugas terjadwal (pembersihan log, dan nanti rapat berulang & notifikasi WhatsApp) dijalankan oleh penjadwal Laravel. Di shared hosting (cPanel → *Cron Jobs*) cukup tambahkan **satu** cron tiap menit:
+
+```
+* * * * * cd /home/USER/path-aplikasi && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Daftar tugas terjadwal: `php artisan schedule:list`.
