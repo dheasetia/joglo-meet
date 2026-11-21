@@ -8,9 +8,12 @@ use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard;
+use App\Filament\Widgets\LatestMeetings;
+use App\Filament\Widgets\MasterDataStats;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -47,6 +50,12 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->pages([Dashboard::class])
+            // Isi halaman Dasbor /admin
+            ->widgets([
+                AccountWidget::class,
+                MasterDataStats::class,
+                LatestMeetings::class,
+            ])
             ->navigationItems([
                 NavigationItem::make('Kembali ke Aplikasi Rapat')
                     ->url('/')

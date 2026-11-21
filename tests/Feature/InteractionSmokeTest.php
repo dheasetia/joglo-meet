@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\AttendanceStatus;
 use App\Enums\MeetingStatus;
+use App\Enums\Role;
 use App\Livewire\ActionBoard;
 use App\Livewire\AttendanceReport;
 use App\Livewire\Dashboard;
@@ -190,5 +191,27 @@ class InteractionSmokeTest extends TestCase
         $this->assertTrue($meeting->participants()->where('user_id', $peserta->id)->first()->attendance_status->isPresent());
 
         $this->get('/hadir/token-salah')->assertNotFound();
+    }
+
+    public function test_admin_dashboard_shows_widgets(): void
+    {
+        // Akun dibuat di sini agar tidak bergantung pada email di seeder
+        $admin = User::factory()->create(['role' => Role::SuperAdmin, 'is_active' => true]);
+
+        // Widget Filament dimuat lazy: cek komponennya terpasang di halaman...
+        $this->actingAs($admin)->get('/admin')
+            ->assertOk()
+            ->assertSeeLivewire(\Filament\Widgets\AccountWidget::class)
+            ->assertSeeLivewire(\App\Filament\Widgets\MasterDataStats::class)
+            ->assertSeeLivewire(\App\Filament\Widgets\LatestMeetings::class);
+
+        // ...lalu render isinya
+        Livewire::test(\App\Filament\Widgets\MasterDataStats::class)
+            ->assertSee('Ringkasan')
+            ->assertSee('Pengguna aktif')
+            ->assertSee('RTL terlambat');
+        Livewire::test(\App\Filament\Widgets\LatestMeetings::class)
+            ->assertSee('Rapat terbaru')
+            ->assertCanSeeTableRecords(Meeting::orderByDesc('date')->limit(5)->get());
     }
 }
