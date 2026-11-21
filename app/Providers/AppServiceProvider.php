@@ -13,7 +13,13 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Pengirim WhatsApp sesuai config/whatsapp.php (fonnte | log)
+        $this->app->bind(\App\Services\WhatsApp\Gateway::class, fn () => match (config('whatsapp.driver')) {
+            'fonnte' => new \App\Services\WhatsApp\FonnteGateway(
+                config('whatsapp.fonnte.token'), config('whatsapp.fonnte.url'), (int) config('whatsapp.fonnte.timeout'),
+            ),
+            default => new \App\Services\WhatsApp\LogGateway,
+        });
     }
 
     public function boot(): void

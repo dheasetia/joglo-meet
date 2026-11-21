@@ -11,6 +11,7 @@ use App\Models\Unit;
 use App\Models\Agenda;
 use App\Models\MeetingParticipant;
 use App\Models\User;
+use App\Services\WhatsApp\WhatsAppNotifier;
 use App\Support\AgendaTemplate;
 use App\Support\MeetingActivity;
 use Illuminate\Support\Facades\DB;
@@ -188,7 +189,8 @@ class MeetingForm extends Component
 
         $user = auth()->user();
 
-        $meeting = DB::transaction(function () use ($data, $user) {
+        $before = [];
+        $meeting = DB::transaction(function () use ($data, $user, &$before) {
             $attributes = [
                 'title' => $data['title'],
                 'meeting_type_id' => $data['meeting_type_id'] ?: null,
@@ -206,6 +208,7 @@ class MeetingForm extends Component
             if ($this->meetingId) {
                 $meeting = Meeting::findOrFail($this->meetingId);
                 abort_unless($meeting->canManage($user) && ! $meeting->isLocked(), 403);
+                $before = self::scheduleSnapshot($meeting);
                 $meeting->update($attributes);
             } else {
                 $meeting = Meeting::create($attributes + [
@@ -289,6 +292,18 @@ class MeetingForm extends Component
             return $meeting;
         });
 
+        // WhatsApp: bila undangan sudah pernah dikirim, kabarkan perubahan jadwal & undang peserta baru
+        $notifier = app(WhatsAppNotifier::class);
+        if ($this->meetingId && $notifier->hasInvited($meeting)) {
+            $after = self::scheduleSnapshot($meeting->fresh());
+            $changes = collect($after)->filter(fn ($value, $label) => $value !== ($before[$label] ?? null))
+                ->map(fn ($value, $label) => [$before[$label] ?? '—', $value])->all();
+            if ($changes) {
+                $notifier->meetingChanged($meeting, $changes, $user->id);
+            }
+            $notifier->meetingInvitation($meeting->fresh(), $user->id);
+        }
+
         session()->flash('toast', $this->meetingId ? 'Perubahan rapat tersimpan.' : 'Rapat berhasil dibuat.');
 
         return $this->redirectRoute('meetings.show', ['meeting' => $meeting->id], navigate: true);
@@ -301,5 +316,16 @@ class MeetingForm extends Component
             'types' => MeetingType::where('is_active', true)->orderBy('name')->get(),
             'units' => Unit::orderBy('name')->get(),
         ])->title($this->meetingId ? 'Ubah Rapat' : 'Rapat Baru');
+    }
+
+    /** Data jadwal yang dikabarkan ke peserta bila berubah: [label => teks]. */
+    protected static function scheduleSnapshot(Meeting $meeting): array
+    {
+        return [
+            'Tanggal' => $meeting->date->translatedFormat('l, d F Y'),
+            'Jam' => $meeting->timeRange().' WIB',
+            'Tempat' => $meeting->location ?: '—',
+            'Tautan daring' => $meeting->online_link ?: '—',
+        ];
     }
 }

@@ -27,6 +27,16 @@
                     @if ($meeting->secretary) · Notulis: <b class="text-slate-700">{{ $meeting->secretary->name }}</b> @endif
                     @if ($meeting->type) · {{ $meeting->type->name }} @endif
                 </p>
+                @if ($waStats->isNotEmpty())
+                    <p class="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
+                        <x-heroicon-o-chat-bubble-left-right class="size-3.5" /> Undangan WhatsApp:
+                        @foreach (\App\Models\WhatsappMessage::STATUSES as $key => $label)
+                            @if ($waStats[$key] ?? 0)
+                                <span @class(['font-semibold', 'text-emerald-700' => $key === 'terkirim', 'text-rose-600' => $key === 'gagal', 'text-amber-700' => $key === 'dilewati', 'text-slate-600' => $key === 'antre'])>{{ $waStats[$key] }} {{ strtolower($label) }}</span>
+                            @endif
+                        @endforeach
+                    </p>
+                @endif
                 @if ($meeting->status === \App\Enums\MeetingStatus::Disahkan)
                     <p class="mt-1 text-xs font-medium text-emerald-700">✓ Disahkan oleh {{ $meeting->approver?->name }} pada {{ $meeting->approved_at->translatedFormat('d M Y H:i') }}</p>
                     @if ($meeting->activeSignature)
@@ -49,6 +59,8 @@
                     @if ($meeting->status === \App\Enums\MeetingStatus::Terjadwal)
                         <x-btn variant="secondary" icon="pencil-square" :href="route('meetings.edit', $meeting->id)" wire:navigate>Ubah</x-btn>
                         <x-btn variant="warning" icon="arrow-uturn-left" wire:click="cancelMeeting" confirm="Rapat ini akan ditandai batal dan tidak dapat dimulai atau diubah lagi." confirm-title="Batalkan rapat?" confirm-button="Ya, batalkan rapat">Batalkan</x-btn>
+                        <x-btn variant="secondary" icon="chat-bubble-left-right" wire:click="sendInvitations"
+                               confirm="Undangan berisi jadwal, tempat, dan agenda dikirim lewat WhatsApp ke peserta yang belum menerimanya." confirm-title="Kirim undangan WhatsApp?" confirm-button="Kirim undangan">Undangan WA</x-btn>
                         <x-btn icon="play" wire:click="startMeeting">Mulai Rapat</x-btn>
                     @elseif ($meeting->status === \App\Enums\MeetingStatus::Berlangsung)
                         <x-btn variant="secondary" icon="pencil-square" :href="route('meetings.edit', $meeting->id)" wire:navigate>Ubah agenda/peserta</x-btn>

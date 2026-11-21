@@ -15,6 +15,8 @@ use App\Models\Meeting;
 use App\Models\MeetingParticipant;
 use App\Models\MeetingSignature;
 use App\Models\User;
+use App\Models\WhatsappMessage;
+use App\Services\WhatsApp\WhatsAppNotifier;
 use App\Support\AttachmentStorage;
 use App\Support\MeetingActivity;
 use Illuminate\Support\Facades\DB;
@@ -129,6 +131,7 @@ class MeetingRoom extends Component
             return MeetingSignature::issue($this->meeting, auth()->user());
         });
         MeetingActivity::log($this->meeting, 'rapat', 'menerbitkan tanda tangan digital', ['Kode verifikasi' => $signature->code]);
+        app(WhatsAppNotifier::class)->minutesApproved($this->meeting, $signature);
         $this->dispatch('toast', message: 'Notulen telah disahkan dan dikunci. Kode verifikasi: '.$signature->code);
     }
 
@@ -155,7 +158,29 @@ class MeetingRoom extends Component
         $this->ensureCanEdit();
         abort_unless($this->meeting->status === MeetingStatus::Terjadwal, 403);
         $this->meeting->update(['status' => MeetingStatus::Batal]);
-        $this->dispatch('toast', message: 'Rapat dibatalkan.');
+        $wa = app(WhatsAppNotifier::class)->meetingCancelled($this->meeting, auth()->id());
+        $this->dispatch('toast', message: 'Rapat dibatalkan.'.($wa['antre'] ? " Kabar pembatalan dikirim ke {$wa['antre']} peserta via WhatsApp." : ''));
+    }
+
+    /** Kirim undangan WhatsApp ke peserta yang belum menerimanya (aman ditekan ulang). */
+    public function sendInvitations(): void
+    {
+        $this->ensureCanEdit();
+        abort_unless(in_array($this->meeting->status, [MeetingStatus::Terjadwal, MeetingStatus::Berlangsung], true), 403);
+
+        $wa = app(WhatsAppNotifier::class)->meetingInvitation($this->meeting, auth()->id());
+        if ($wa['antre'] || $wa['dilewati']) {
+            MeetingActivity::log($this->meeting, 'rapat', 'mengirim undangan WhatsApp', [
+                'Diantrekan' => $wa['antre'].' peserta',
+                'Dilewati' => $wa['dilewati'] ? $wa['dilewati'].' peserta (belum ada nomor)' : null,
+            ]);
+        }
+
+        $this->dispatch('toast', message: match (true) {
+            $wa['antre'] > 0 => "Undangan WhatsApp dikirim ke {$wa['antre']} peserta.".($wa['dilewati'] ? " {$wa['dilewati']} peserta belum punya nomor WA." : ''),
+            $wa['dilewati'] > 0 => "{$wa['dilewati']} peserta belum punya nomor WA; undangan tidak terkirim.",
+            default => 'Semua peserta sudah menerima undangan.',
+        });
     }
 
     // ---------------------------------------------------------------- Notulen
@@ -309,13 +334,21 @@ class MeetingRoom extends Component
         ];
 
         if ($this->editingRtlId) {
-            $this->meeting->actionItems()->whereKey($this->editingRtlId)->firstOrFail()->update($values);
+            $item = $this->meeting->actionItems()->whereKey($this->editingRtlId)->firstOrFail();
+            $picChanged = $item->pic_id !== $values['pic_id'];
+            $item->update($values);
         } else {
-            $this->meeting->actionItems()->create($values + [
+            $item = $this->meeting->actionItems()->create($values + [
                 'decision_id' => $this->rtlDecisionId,
                 'status' => ActionStatus::Belum,
                 'progress' => 0,
             ]);
+            $picChanged = true;
+        }
+
+        // Beri tahu penanggung jawab (baru) lewat WhatsApp, kecuali bila ia sendiri yang mencatat
+        if ($picChanged) {
+            app(WhatsAppNotifier::class)->actionAssigned($item, auth()->id());
         }
 
         $this->cancelEditing();
@@ -504,6 +537,10 @@ class MeetingRoom extends Component
             'users' => User::where('is_active', true)->orderBy('name')->get(['id', 'name', 'jabatan']),
             'canEdit' => $this->canEdit(),
             'canManage' => $this->meeting->canManage($user),
+            'waStats' => $this->meeting->canManage($user)
+                ? WhatsappMessage::where('meeting_id', $this->meeting->id)->where('type', 'undangan')
+                    ->selectRaw('status, count(*) as jumlah')->groupBy('status')->pluck('jumlah', 'status')
+                : collect(),
             'canApprove' => $this->meeting->canApprove($user),
             'isAdmin' => $user->isAdmin(),
             'checkinUrl' => route('checkin', $this->meeting->checkin_token),

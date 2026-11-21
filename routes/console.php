@@ -18,3 +18,12 @@ Schedule::command('activitylog:clean --force')->dailyAt('02:00');
 
 // Buat rapat dari jadwal rutin untuk beberapa hari ke depan (meeting_schedules.lead_days)
 Schedule::command('rapat:buat-dari-jadwal')->dailyAt('05:00');
+
+// Pengingat WhatsApp harian (rapat besok, deadline RTL besok, RTL terlambat)
+Schedule::command('rapat:kirim-pengingat')->dailyAt(config('whatsapp.reminder_time', '07:00'));
+
+// Proses antrean (kirim WhatsApp). Di shared hosting tanpa worker permanen: dijalankan tiap menit
+// oleh cron schedule:run, berhenti sendiri bila antrean kosong. Diletakkan paling akhir.
+Schedule::command('queue:work --stop-when-empty --max-time=50 --tries=3')
+    ->everyMinute()
+    ->withoutOverlapping(5);

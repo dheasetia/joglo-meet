@@ -35,7 +35,14 @@ class UserResource extends Resource
         return $schema->components([
             TextInput::make('name')->label('Nama')->required()->maxLength(255),
             TextInput::make('email')->email()->required()->unique(ignoreRecord: true),
-            TextInput::make('phone')->label('No. WhatsApp')->tel()->maxLength(30),
+            TextInput::make('phone')->label('No. WhatsApp')->tel()->maxLength(30)
+                ->placeholder('08xxxxxxxxxx')
+                ->helperText('Untuk undangan & pengingat rapat via WhatsApp.')
+                ->rule(fn () => function (string $attribute, $value, \Closure $fail) {
+                    if (filled($value) && ! \App\Services\WhatsApp\Phone::normalize($value)) {
+                        $fail('Nomor WhatsApp tidak valid. Contoh: 081234567890.');
+                    }
+                }),
             TextInput::make('jabatan')->maxLength(255),
             Select::make('role')->label('Peran')->options(Role::options())->required()->default(Role::Peserta->value),
             Select::make('unit_id')->label('Unit')->relationship('unit', 'name')->searchable()->preload(),

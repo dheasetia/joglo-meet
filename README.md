@@ -129,7 +129,7 @@ resources/views/           Layout, halaman Livewire, cetak notulen
 | **Ekspor Excel** (.xlsx, mengikuti filter & hak akses): *Daftar rapat*, *Rekap kehadiran* (sheet Rekap + Detail), dan *per rapat* dari Ruang Rapat (info & agenda, daftar hadir, keputusan & RTL, evaluasi RTL). | ✅ Selesai |
 | **Tanda tangan digital QR**: notulen yang disahkan mendapat kode verifikasi + sidik jari SHA-256 isinya; QR dicetak di kolom pengesahan. Pindai → halaman publik `/verifikasi/{kode}` menyatakan *SAH* / *Tidak berlaku* (pengesahan dicabut atau isi berubah) / *Kode tidak ditemukan*. Rapat lama: `php artisan rapat:terbitkan-tanda-tangan`. | ✅ Selesai |
 | **Rapat berulang otomatis**: menu *Jadwal Rutin* (setiap pekan, dua pekan sekali, atau bulanan pekan ke-n/terakhir). Rapat dibuat otomatis tiap pagi (`rapat:buat-dari-jadwal`, cron 05.00) untuk N hari ke depan dari template jenis rapat, lengkap dengan peserta tetap; rapat yang dibatalkan tidak dibuat ulang. | ✅ Selesai |
-| Notifikasi WhatsApp (Fonnte): undangan, pengingat H-1, deadline RTL | ⏳ |
+| **Notifikasi WhatsApp (Fonnte)**: undangan (tombol *Undangan WA* di Ruang Rapat; otomatis untuk rapat dari jadwal rutin), perubahan & pembatalan rapat, pengingat H-1, notulen disahkan, RTL baru, pengingat deadline RTL H-1, RTL terlambat. Kotak keluar, kirim ulang & pesan uji di `/admin` → *Pesan WhatsApp*. | ✅ Selesai |
 
 Belum direncanakan: presensi RFID.
 
@@ -151,4 +151,20 @@ Lampiran maksimal **10 MB per file** (`config/rapat.php` → `attachments`). Ser
 - **Laravel Herd (lokal):** *Herd → Settings → PHP → Max file upload size* (mis. 12 MB). Bawaan Herd 2 MB.
 
 File tersimpan di `storage/app/private/lampiran/` (tidak bisa diakses langsung dari web) — sertakan folder ini dalam cadangan (backup).
+
+## 10. Notifikasi WhatsApp (Fonnte)
+
+1. Daftar & sambungkan nomor WA pengirim di [fonnte.com](https://fonnte.com), salin **token** perangkat.
+2. Isi `.env` di server:
+   ```env
+   WHATSAPP_DRIVER=fonnte
+   FONNTE_TOKEN=token-dari-fonnte
+   WHATSAPP_REMINDER_TIME=07:00
+   APP_URL=https://domain-aplikasi   # tautan di pesan memakai alamat ini
+   ```
+3. Isi **No. WhatsApp** tiap pengguna di `/admin` → Pengguna (format `08…`). Pengguna tanpa nomor dilewati (tercatat *Dilewati*).
+4. Pastikan cron `schedule:run` (bagian 8) berjalan: antrean pesan diproses tiap menit, pengingat harian pukul `WHATSAPP_REMINDER_TIME`.
+5. Uji dari `/admin` → *Pesan WhatsApp* → **Kirim pesan uji**.
+
+Selama `WHATSAPP_DRIVER=log` pesan hanya dicatat di `storage/logs/laravel.log` (untuk uji coba). Pesan dikirim satu per satu dengan jeda acak 4–9 detik (`WHATSAPP_DELAY_MIN/MAX`) agar nomor pengirim tidak dianggap spam; pesan gagal dicoba ulang hingga 3 kali.
 

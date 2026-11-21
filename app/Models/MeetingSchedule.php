@@ -6,6 +6,7 @@ use App\Enums\MeetingStatus;
 use App\Enums\Role;
 use App\Enums\ScheduleFrequency;
 use App\Models\Concerns\RecordsActivity;
+use App\Services\WhatsApp\WhatsAppNotifier;
 use App\Support\AgendaTemplate;
 use App\Support\MeetingActivity;
 use Illuminate\Database\Eloquent\Builder;
@@ -248,7 +249,7 @@ class MeetingSchedule extends Model
     public function generateMeeting(Carbon $date): ?Meeting
     {
         try {
-            return DB::transaction(function () use ($date) {
+            $meeting = DB::transaction(function () use ($date) {
                 $meeting = Meeting::create([
                     'meeting_schedule_id' => $this->id,
                     'meeting_type_id' => $this->meeting_type_id,
@@ -294,6 +295,11 @@ class MeetingSchedule extends Model
         } catch (UniqueConstraintViolationException) {
             return null; // sudah dibuat proses lain pada saat bersamaan
         }
+
+        // Rapat dari jadwal rutin langsung mengundang peserta lewat WhatsApp
+        app(WhatsAppNotifier::class)->meetingInvitation($meeting);
+
+        return $meeting;
     }
 
     // ---------- Log aktivitas ----------
