@@ -127,7 +127,7 @@ resources/views/           Layout, halaman Livewire, cetak notulen
 | **Log aktivitas**: siapa mengubah apa & kapan (rapat, notulen, keputusan, RTL, presensi, data master, login). Tab *Riwayat* di Ruang Rapat (pengelola rapat) dan menu *Log Aktivitas* di `/admin`. Log > 365 hari dihapus otomatis. | ✅ Selesai |
 | **Lampiran berkas/foto**: di setiap agenda (Ruang Rapat, bisa seret-lepas) dan bukti pada pembaruan progres RTL. File privat dengan cek hak akses, maks. 10 MB, foto diperkecil otomatis ke 1920 px. | ✅ Selesai |
 | **Ekspor Excel** (.xlsx, mengikuti filter & hak akses): *Daftar rapat*, *Rekap kehadiran* (sheet Rekap + Detail), dan *per rapat* dari Ruang Rapat (info & agenda, daftar hadir, keputusan & RTL, evaluasi RTL). | ✅ Selesai |
-| Tanda tangan digital QR pada notulen yang disahkan | ⏳ |
+| **Tanda tangan digital QR**: notulen yang disahkan mendapat kode verifikasi + sidik jari SHA-256 isinya; QR dicetak di kolom pengesahan. Pindai → halaman publik `/verifikasi/{kode}` menyatakan *SAH* / *Tidak berlaku* (pengesahan dicabut atau isi berubah) / *Kode tidak ditemukan*. Rapat lama: `php artisan rapat:terbitkan-tanda-tangan`. | ✅ Selesai |
 | Rapat berulang otomatis | ⏳ |
 | Notifikasi WhatsApp (Fonnte): undangan, pengingat H-1, deadline RTL | ⏳ |
 

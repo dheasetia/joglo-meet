@@ -133,7 +133,10 @@ class InteractionSmokeTest extends TestCase
         $this->actingAs($this->user('irfan@jogloquran.com'));
         Livewire::test(MeetingRoom::class, ['meeting' => $meeting->fresh()])->call('approve');
         $this->assertSame(MeetingStatus::Disahkan, $meeting->fresh()->status);
-        $this->get("/rapat/{$meeting->id}/cetak")->assertOk()->assertSee('Disahkan secara elektronik');
+        // Cetak notulen yang disahkan memuat QR tanda tangan digital + kodenya
+        $this->get("/rapat/{$meeting->id}/cetak")->assertOk()
+            ->assertSee('qr-verifikasi', false)
+            ->assertSee($meeting->fresh()->activeSignature->code);
     }
 
     public function test_locked_meeting_cannot_be_edited(): void

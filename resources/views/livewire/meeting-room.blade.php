@@ -22,6 +22,13 @@
                 </p>
                 @if ($meeting->status === \App\Enums\MeetingStatus::Disahkan)
                     <p class="mt-1 text-xs font-medium text-emerald-700">✓ Disahkan oleh {{ $meeting->approver?->name }} pada {{ $meeting->approved_at->translatedFormat('d M Y H:i') }}</p>
+                    @if ($meeting->activeSignature)
+                        <p class="mt-0.5 flex flex-wrap items-center gap-x-2 text-xs text-slate-500">
+                            <x-heroicon-o-qr-code class="size-3.5" />
+                            Kode verifikasi <span class="font-mono font-semibold tracking-wide text-slate-700">{{ $meeting->activeSignature->code }}</span>
+                            <a href="{{ $meeting->activeSignature->url() }}" target="_blank" rel="noopener" class="font-semibold text-brand-700 hover:underline">Lihat halaman verifikasi</a>
+                        </p>
+                    @endif
                 @endif
             </div>
 

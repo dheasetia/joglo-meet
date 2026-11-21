@@ -7,6 +7,7 @@ use App\Enums\AttendanceStatus;
 use App\Enums\MeetingStatus;
 use App\Enums\Role;
 use App\Models\Meeting;
+use App\Models\MeetingSignature;
 use App\Models\MeetingType;
 use App\Models\Unit;
 use App\Models\User;
@@ -213,6 +214,11 @@ class DatabaseSeeder extends Seeder
         }
         foreach (['Pembukaan, tilawah & doa', 'Evaluasi RTL rapat sebelumnya', 'Laporan kepala unit', 'Pembahasan program pekan depan', 'Lain-lain', 'Penutup & doa kafaratul majelis'] as $i => $title) {
             $rp->agendas()->create(['sort_order' => $i + 1, 'title' => $title, 'is_carry_over' => $i === 1]);
+        }
+
+        // ---------- Tanda tangan digital untuk rapat contoh yang sudah disahkan ----------
+        foreach ([[$past, $kepSma], [$pastSmp, $kepSmp]] as [$meeting, $signer]) {
+            MeetingSignature::issue($meeting->fresh(), $signer)->update(['signed_at' => $meeting->approved_at]);
         }
     }
 }

@@ -32,6 +32,10 @@
         .sign { display: flex; justify-content: space-between; margin-top: 36px; text-align: center; page-break-inside: avoid; }
         .sign div { width: 45%; }
         .sign .space { height: 70px; }
+        .sign .qr { height: auto; min-height: 70px; margin: 4px 0; }
+        .qr-verifikasi { width: 30mm; height: 30mm; display: block; margin: 0 auto; }
+        .kode { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 9pt; letter-spacing: .5px; }
+        .verifikasi-note { margin-top: 18px; padding-top: 6px; border-top: 1px solid #ccc; font-size: 9pt; color: #555; text-align: center; font-family: system-ui, sans-serif; }
         .toolbar { position: sticky; top: 0; background: #fbf3f5; border-bottom: 1px solid #edc8d0; padding: 10px; text-align: center; font-family: system-ui, sans-serif; font-size: 14px; }
         .toolbar button { display: inline-flex; align-items: center; gap: 6px; background: #334155; color: #fff; border: 0; border-radius: 12px; padding: 8px 14px; font: 600 14px system-ui, sans-serif; cursor: pointer; box-shadow: 0 1px 2px rgb(0 0 0 / .05); transition: transform .15s ease-out, box-shadow .15s ease-out, background-color .15s ease-out; }
         .toolbar button:hover { background: #1e293b; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1); }
@@ -179,13 +183,35 @@
             <p><b><u>{{ $meeting->secretary?->name ?? '...........................' }}</u></b></p>
         </div>
         <div>
-            <p>{{ config('rapat.city') }}, {{ ($meeting->approved_at ?? $meeting->date)->translatedFormat('d F Y') }}<br>Mengesahkan, Pimpinan Rapat</p>
-            <div class="space" style="display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-size:9pt;color:#047857">
-                @if ($meeting->approved_at) ✓ Disahkan secara elektronik<br>{{ $meeting->approved_at->format('d/m/Y H:i') }} @endif
-            </div>
-            <p><b><u>{{ $meeting->chair->name }}</u></b></p>
+            @php
+                // Nama di bawah QR = penanda tangan sebenarnya (bisa admin/pimpinan pondok atas nama pimpinan rapat)
+                $signer = $meeting->activeSignature?->signer;
+                $onBehalf = $signer && $signer->id !== $meeting->chair_id;
+            @endphp
+            <p>{{ config('rapat.city') }}, {{ ($meeting->approved_at ?? $meeting->date)->translatedFormat('d F Y') }}<br>
+                Mengesahkan, {{ $onBehalf ? ($signer->jabatan ?? $signer->role->label()) : 'Pimpinan Rapat' }}
+                @if ($onBehalf)<br><span style="font-size:10pt">a.n. Pimpinan Rapat ({{ $meeting->chair->name }})</span>@endif
+            </p>
+            @if ($meeting->activeSignature)
+                {{-- Tanda tangan digital: QR berisi tautan verifikasi --}}
+                <div class="space qr" title="Pindai untuk memverifikasi keaslian notulen">{!! $meeting->activeSignature->qrSvg() !!}</div>
+                <p><b><u>{{ $signer?->name ?? $meeting->chair->name }}</u></b></p>
+                <p class="kode">{{ $meeting->activeSignature->code }}</p>
+            @else
+                <div class="space" style="display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;font-size:9pt;color:#047857">
+                    @if ($meeting->approved_at) ✓ Disahkan secara elektronik<br>{{ $meeting->approved_at->format('d/m/Y H:i') }} @endif
+                </div>
+                <p><b><u>{{ $meeting->chair->name }}</u></b></p>
+            @endif
         </div>
     </div>
+
+    @if ($meeting->activeSignature)
+        <p class="verifikasi-note">
+            Notulen ini ditandatangani secara digital pada {{ $meeting->activeSignature->signed_at->translatedFormat('d F Y H:i') }} WIB.
+            Keaslian dapat diperiksa dengan memindai QR atau membuka {{ route('verification.index') }} dan memasukkan kode <b class="kode">{{ $meeting->activeSignature->code }}</b>.
+        </p>
+    @endif
 </div>
 </body>
 </html>

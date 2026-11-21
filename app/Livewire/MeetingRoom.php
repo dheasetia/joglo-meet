@@ -13,9 +13,11 @@ use App\Models\Attachment;
 use App\Models\Decision;
 use App\Models\Meeting;
 use App\Models\MeetingParticipant;
+use App\Models\MeetingSignature;
 use App\Models\User;
 use App\Support\AttachmentStorage;
 use App\Support\MeetingActivity;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
@@ -120,15 +122,32 @@ class MeetingRoom extends Component
     public function approve(): void
     {
         abort_unless($this->meeting->canApprove(auth()->user()) && $this->meeting->status === MeetingStatus::Selesai, 403);
-        $this->meeting->update(['status' => MeetingStatus::Disahkan, 'approved_at' => now(), 'approved_by' => auth()->id()]);
-        $this->dispatch('toast', message: 'Notulen telah disahkan dan dikunci.');
+        $signature = DB::transaction(function () {
+            $this->meeting->update(['status' => MeetingStatus::Disahkan, 'approved_at' => now(), 'approved_by' => auth()->id()]);
+
+            // Tanda tangan digital: kode verifikasi + sidik jari isi notulen saat disahkan
+            return MeetingSignature::issue($this->meeting, auth()->user());
+        });
+        MeetingActivity::log($this->meeting, 'rapat', 'menerbitkan tanda tangan digital', ['Kode verifikasi' => $signature->code]);
+        $this->dispatch('toast', message: 'Notulen telah disahkan dan dikunci. Kode verifikasi: '.$signature->code);
     }
 
     public function reopen(): void
     {
         abort_unless(auth()->user()->isAdmin() && $this->meeting->status === MeetingStatus::Disahkan, 403);
-        $this->meeting->update(['status' => MeetingStatus::Selesai, 'approved_at' => null, 'approved_by' => null]);
-        $this->dispatch('toast', message: 'Pengesahan dibatalkan. Notulen dapat diubah kembali.');
+        $revoked = DB::transaction(function () {
+            $this->meeting->update(['status' => MeetingStatus::Selesai, 'approved_at' => null, 'approved_by' => null]);
+
+            // Kode verifikasi lama tidak berlaku lagi; pengesahan ulang menerbitkan kode baru
+            $codes = $this->meeting->signatures()->whereNull('revoked_at')->pluck('code');
+            $this->meeting->signatures()->whereNull('revoked_at')->update(['revoked_at' => now(), 'revoked_by' => auth()->id()]);
+
+            return $codes;
+        });
+        if ($revoked->isNotEmpty()) {
+            MeetingActivity::log($this->meeting, 'rapat', 'mencabut tanda tangan digital', ['Kode verifikasi' => $revoked->all()]);
+        }
+        $this->dispatch('toast', message: 'Pengesahan dibatalkan. Kode verifikasi lama tidak berlaku lagi.');
     }
 
     public function cancelMeeting(): void
@@ -456,7 +475,7 @@ class MeetingRoom extends Component
 
     public function render()
     {
-        $this->meeting->refresh()->load(['type', 'unit', 'chair', 'secretary', 'approver']);
+        $this->meeting->refresh()->load(['type', 'unit', 'chair', 'secretary', 'approver', 'activeSignature']);
 
         $agendas = $this->meeting->agendas()
             ->with(['presenter', 'decisions.actionItems.pic', 'attachments.uploader'])

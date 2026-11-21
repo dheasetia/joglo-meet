@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CheckInController;
 use App\Http\Controllers\MeetingExcelController;
 use App\Http\Controllers\MeetingPrintController;
+use App\Http\Controllers\VerificationController;
 use App\Livewire\ActionBoard;
 use App\Livewire\AttendanceReport;
 use App\Livewire\Dashboard;
@@ -13,6 +14,12 @@ use App\Livewire\MeetingIndex;
 use App\Livewire\MeetingRoom;
 use App\Livewire\MyTasks;
 use Illuminate\Support\Facades\Route;
+
+// Verifikasi tanda tangan digital notulen — publik (dipindai dari QR), dibatasi 30 permintaan/menit
+Route::middleware('throttle:30,1')->group(function () {
+    Route::get('/verifikasi', [VerificationController::class, 'index'])->name('verification.index');
+    Route::get('/verifikasi/{code}', [VerificationController::class, 'show'])->where('code', '[A-Za-z0-9\-\s]{4,40}')->name('verification.show');
+});
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'show'])->name('login');

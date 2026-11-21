@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -97,6 +98,60 @@ class Meeting extends Model
     public function actionItems(): HasMany
     {
         return $this->hasMany(ActionItem::class);
+    }
+
+    public function signatures(): HasMany
+    {
+        return $this->hasMany(MeetingSignature::class)->latest('id');
+    }
+
+    /** Tanda tangan digital yang masih berlaku (belum dicabut karena buka kunci). */
+    public function activeSignature(): HasOne
+    {
+        return $this->hasOne(MeetingSignature::class)->whereNull('revoked_at')->latestOfMany();
+    }
+
+    /**
+     * Sidik jari (SHA-256) isi notulen untuk tanda tangan digital: data rapat, agenda & pembahasan,
+     * keputusan, RTL (uraian, PIC, deadline — bukan progres yang memang terus berubah), daftar hadir,
+     * dan lampiran agenda. Disusun kanonik (urutan & tipe tetap) agar hash stabil.
+     */
+    public function contentFingerprint(): string
+    {
+        $time = fn ($t) => $t ? substr((string) $t, 0, 5) : null;
+
+        $payload = [
+            'rapat' => [
+                'id' => $this->id,
+                'judul' => $this->title,
+                'tanggal' => $this->date?->format('Y-m-d'),
+                'mulai' => $time($this->start_time),
+                'selesai' => $time($this->end_time),
+                'tempat' => $this->location,
+                'tautan' => $this->online_link,
+                'pimpinan' => $this->chair_id,
+                'notulis' => $this->secretary_id,
+                'sifat' => $this->confidentiality,
+                'catatan' => $this->notes,
+            ],
+            'agenda' => Agenda::where('meeting_id', $this->id)->orderBy('sort_order')->orderBy('id')
+                ->get(['id', 'sort_order', 'title', 'presenter_id', 'duration_minutes', 'discussion'])
+                ->map(fn ($a) => [$a->id, $a->sort_order, $a->title, $a->presenter_id, $a->duration_minutes, (string) $a->discussion])->all(),
+            'keputusan' => Decision::where('meeting_id', $this->id)->orderBy('id')
+                ->get(['id', 'agenda_id', 'content'])
+                ->map(fn ($d) => [$d->id, $d->agenda_id, $d->content])->all(),
+            'rtl' => ActionItem::where('meeting_id', $this->id)->orderBy('id')
+                ->get(['id', 'decision_id', 'title', 'pic_id', 'due_date', 'priority', 'success_indicator'])
+                ->map(fn ($i) => [$i->id, $i->decision_id, $i->title, $i->pic_id, $i->due_date?->format('Y-m-d'), $i->priority?->value, $i->success_indicator])->all(),
+            'hadir' => MeetingParticipant::where('meeting_id', $this->id)->orderBy('id')
+                ->get(['id', 'user_id', 'guest_name', 'attendance_status', 'note'])
+                ->map(fn ($p) => [$p->id, $p->user_id, $p->guest_name, $p->attendance_status?->value, $p->note])->all(),
+            'lampiran' => Attachment::where('meeting_id', $this->id)->where('attachable_type', (new Agenda)->getMorphClass())->orderBy('id')
+                ->get(['id', 'original_name', 'size'])
+                ->map(fn ($f) => [$f->id, $f->original_name, $f->size])->all(),
+        ];
+
+        return hash('sha256', json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
     }
 
     // ---------- Hak akses ----------

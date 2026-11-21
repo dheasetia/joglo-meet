@@ -17,6 +17,7 @@ class MeetingPrintController extends Controller
             'participants.user.unit',
             'agendas.presenter',
             'agendas.attachments',
+            'activeSignature.signer',
             'agendas.decisions.actionItems.pic',
             'actionItems.pic',
         ]);

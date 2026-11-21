@@ -12,7 +12,7 @@ class MeetingExport
     public static function build(Meeting $meeting): ExcelWorkbook
     {
         $meeting->loadMissing([
-            'type', 'unit', 'chair', 'secretary', 'approver',
+            'type', 'unit', 'chair', 'secretary', 'approver', 'activeSignature',
             'participants.user.unit',
             'agendas.presenter', 'agendas.attachments', 'agendas.decisions.actionItems.pic',
             'agendas.decisions.actionItems.evidenceAttachments',
@@ -36,6 +36,7 @@ class MeetingExport
             ->pair('Notulis', $meeting->secretary?->name)
             ->pair('Status', $meeting->status->label())
             ->pair('Disahkan', $meeting->approved_at ? $meeting->approver?->name.' · '.$meeting->approved_at->translatedFormat('d F Y H:i') : '—')
+            ->pair('Kode verifikasi', $meeting->activeSignature ? $meeting->activeSignature->code.' · '.$meeting->activeSignature->url() : '—')
             ->pair('Kehadiran', "{$sum['present']} dari {$sum['total']} peserta ({$sum['percent']}%)")
             ->pair('Catatan', $meeting->notes)
             ->blank()
